@@ -1,22 +1,25 @@
-import {FC, ReactChildren} from "react";
+import {FC} from "react";
 import styled from "styled-components";
 
 export type SquareProps = {
-  color: 'black' | 'white'
+  color: 'black' | 'white',
+  key?: number
 }
 
 
 const Wrapper = styled.div<{ color: string }>`
   width: 100px;
   height: 100px;
-  border: 1px solid ${props => props.color};
-  background-color: ${props => props.color}
+  background-color: ${props => props.color === 'white' ? 'bisque' : 'darkgray'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `
 
-export const Square: FC<SquareProps> = ({color, children}) => {
+export const Square: FC<SquareProps> = ({color, key, children}) => {
 
   return (
-      <Wrapper color={color}>
+      <Wrapper color={color} key={key}>
         {children}
       </Wrapper>
   )

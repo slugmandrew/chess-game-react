@@ -1,66 +1,83 @@
 import React from "react";
 import {Square} from "./Square";
 import styled from "styled-components";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {IconProp} from "@fortawesome/fontawesome-svg-core";
-import {faChessKing} from "@fortawesome/free-solid-svg-icons/faChessKing";
-import {faChessQueen} from "@fortawesome/free-solid-svg-icons/faChessQueen";
-import {faChessBishop} from "@fortawesome/free-solid-svg-icons/faChessBishop";
-import {faChessKnight} from "@fortawesome/free-solid-svg-icons/faChessKnight";
-import {faChessRook} from "@fortawesome/free-solid-svg-icons/faChessRook";
-import {faChessPawn} from "@fortawesome/free-solid-svg-icons/faChessPawn";
-import {faMehBlank} from "@fortawesome/free-solid-svg-icons";
 import {PieceType} from "./PieceType";
-import * as Opt from "fp-ts"
+import {iconLookup, Piece, PieceProps} from "./Piece";
+import {PieceColor} from "./PieceColor";
+import {DragDropContext, Droppable, Draggable, DropResult} from "react-beautiful-dnd";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
-const iconLookup = (type: PieceType): IconProp => {
-  const {Knight, Pawn, Bishop, Rook, Queen, King, Empty} = PieceType;
-  switch (type) {
-    case King:
-      return faChessKing
-    case Queen:
-      return faChessQueen
-    case Bishop:
-      return faChessBishop
-    case Knight:
-      return faChessKnight
-    case Rook:
-      return faChessRook
-    case Pawn:
-      return faChessPawn
-    case Empty:
-      return faMehBlank
-    default:
-      return faMehBlank
-  }
+const {Knight, Pawn, Bishop, Rook, Queen, King} = PieceType;
+const {Black, White} = PieceColor;
+
+
+const BlackRook: PieceProps = {color: Black, type: Rook}
+const BlackKnight: PieceProps = {color: Black, type: Knight}
+const BlackBishop: PieceProps = {color: Black, type: Bishop}
+const BlackKing: PieceProps = {color: Black, type: King}
+const BlackQueen: PieceProps = {color: Black, type: Queen}
+const BlackPawn: PieceProps = {color: Black, type: Pawn}
+
+const WhiteRook: PieceProps = {color: White, type: Rook}
+const WhiteKnight: PieceProps = {color: White, type: Knight}
+const WhiteBishop: PieceProps = {color: White, type: Bishop}
+const WhiteKing: PieceProps = {color: White, type: King}
+const WhiteQueen: PieceProps = {color: White, type: Queen}
+const WhitePawn: PieceProps = {color: White, type: Pawn}
+
+
+const initialSetup: Array<Array<PieceProps>> = [
+  [BlackRook, BlackKnight, BlackBishop, BlackQueen, BlackKing, BlackBishop, BlackKnight, BlackRook],
+  [BlackPawn, BlackPawn, BlackPawn, BlackPawn, BlackPawn, BlackPawn, BlackPawn, BlackPawn],
+  [],
+  [],
+  [],
+  [],
+  [WhitePawn, WhitePawn, WhitePawn, WhitePawn, WhitePawn, WhitePawn, WhitePawn, WhitePawn],
+  [WhiteRook, WhiteKnight, WhiteBishop, WhiteQueen, WhiteKing, WhiteBishop, WhiteKnight, WhiteRook],
+]
+
+const keygen = (x: number, y: number, str: string) => {
+  return `${str}-${(x + (y * 8))}`;
 }
 
-const initialSetup: Array<Array<PieceType>> =
-    [
-      [PieceType.Rook, PieceType.Knight, PieceType.Bishop, PieceType.Queen, PieceType.King, PieceType.Bishop, PieceType.Knight, PieceType.Rook],
-      [PieceType.Pawn, PieceType.Pawn, PieceType.Pawn, PieceType.Pawn, PieceType.Pawn, PieceType.Pawn, PieceType.Pawn, PieceType.Pawn],
-      [],
-      [],
-      [],
-      [],
-      [PieceType.Pawn, PieceType.Pawn, PieceType.Pawn, PieceType.Pawn, PieceType.Pawn, PieceType.Pawn, PieceType.Pawn, PieceType.Pawn],
-      [PieceType.Rook, PieceType.Knight, PieceType.Bishop, PieceType.Queen, PieceType.King, PieceType.Bishop, PieceType.Knight, PieceType.Rook],
-    ]
+
+const renderSquare = (x: number, y: number) => {
+      const black = (x + y) % 2 === 1
+      const piece = initialSetup[x][y]
+      return (
+          <Droppable key={keygen(x, y, "square")} droppableId={`${x}-${y}`}>
+            {(dropProvider, dropSnapshot) => {
+              return (
+                  <div ref={dropProvider.innerRef}
+                       {...dropProvider.droppableProps}>
+                    <Square color={black ? 'black' : 'white'}>
+                      {piece ?
+                       <Draggable draggableId={`${piece.color}-${piece.type}-${y}`} index={0}>
+                         {(dragProvider => (
+
+                             <div ref={dragProvider.innerRef}
+                                  {...dragProvider.draggableProps}
+                                  {...dragProvider.dragHandleProps}>
+                               <Piece {...piece} />
+                             </div>
 
 
-function renderSquare(x: number, y: number) {
+                         ))}
+                       </Draggable>
+                             : <></>}
+                      {dropProvider.placeholder}
+                    </Square>
+                  </div>
 
-  const black = (x + y) % 2 === 1
-  const piece = initialSetup[x][y]
+              )
+            }}
+          </Droppable>
 
-  return (
-      <Square color={black ? 'black' : 'white'}>
-        {piece ? <FontAwesomeIcon icon={iconLookup(piece)} size={"3x"}/>
-               : <></>}
-      </Square>
-  )
+      )
 
-}
+    }
+;
 
 
 const Wrapper = styled.div`
@@ -69,6 +86,11 @@ const Wrapper = styled.div`
   width: 800px;
   height: 800px;
 `
+
+const performDrag = (result: DropResult) => {
+  console.log("ID", result.draggableId)
+  console.log("dest", result.destination)
+};
 
 export const Board = () => {
 
@@ -83,8 +105,11 @@ export const Board = () => {
   }
 
   return (
-      <Wrapper>
-        {squares}
-      </Wrapper>
+      <DragDropContext onDragEnd={performDrag}>
+        <Wrapper>
+          {squares}
+        </Wrapper>
+      </DragDropContext>
+
   )
 }

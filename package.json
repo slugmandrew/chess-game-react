@@ -14,8 +14,8 @@
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "bootstrap": "^4.6.0",
-    "framer-motion": "^4.0.0",
     "fp-ts": "^2.9.5",
+    "framer-motion": "^4.0.0",
     "react": "^17.0.1",
     "react-beautiful-dnd": "^13.0.0",
     "react-dnd": "^14.0.1",
@@ -51,6 +51,7 @@
     ]
   },
   "devDependencies": {
+    "@types/react-beautiful-dnd": "^13.0.0",
     "@types/styled-components": "^5.1.9"
   }
 }
