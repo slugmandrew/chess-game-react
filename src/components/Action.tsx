@@ -1,7 +1,4 @@
-export type Action = {
-
-  type: 'start' | 'move' | 'reset',
-  pieceId: string,
-  destinationId?: string
-
-}
+export type Action =
+  | { type: 'start' }
+  | { type: 'move', pieceX: number, pieceY: number, destX: number, destY: number }
+  | { type: 'reset' }

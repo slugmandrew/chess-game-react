@@ -6,6 +6,7 @@ import { Piece, PieceProps } from "./Piece";
 import { PieceColor } from "./PieceColor";
 import { Action } from "./Action";
 import { DndContext, DragEndEvent, DragStartEvent } from "@dnd-kit/core";
+import { Data } from "@dnd-kit/core/dist/store";
 
 const { Knight, Pawn, Bishop, Rook, Queen, King } = PieceType;
 const { Black, White } = PieceColor;
@@ -72,29 +73,23 @@ const reducer = (state: State, action: Action): State => {
       return state
     case "move":
 
-      console.log("PIECE LOCATION", action.pieceId)
-      console.log("DESTINATION", action.destinationId)
+      const { pieceX, pieceY, destX, destY } = action
 
-      let [pieceX, pieceY]: number[] = action.pieceId.split("-").map(s => parseInt(s))
       console.log("pieceX", pieceX)
       console.log("pieceY", pieceY)
-      let pieceBeingMoved = state.pieces[pieceX][pieceY]
-      console.log("Piece being moved", pieceBeingMoved)
 
-      if (action.destinationId) {
-        let [destX, destY]: number[] = action.destinationId?.split("-").map(s => parseInt(s))
-        let pieceInDestination: PieceProps | undefined = state.pieces[destX][destY]
-        console.log("Piece in destination", pieceInDestination)
 
-        /// if we are moving to a blank square
-        if (!pieceInDestination) {
-          let newPieces = state.pieces.slice()
-          newPieces[destX][destY] = state.pieces[pieceX][pieceY]
-          newPieces[pieceX][pieceY] = undefined
-          return {
-            ...state,
-            pieces: newPieces
-          }
+      let pieceInDestination: PieceProps | undefined = state.pieces[destX][destY]
+      console.log("Piece in destination", pieceInDestination)
+
+      /// if we are moving to a blank square
+      if (!pieceInDestination) {
+        let newPieces = state.pieces.slice()
+        newPieces[destX][destY] = state.pieces[pieceX][pieceY]
+        newPieces[pieceX][pieceY] = undefined
+        return {
+          ...state,
+          pieces: newPieces
         }
       }
 
@@ -112,7 +107,7 @@ const keygen = (x: number, y: number, str: string) => {
 }
 
 
-const Wrapper = styled.div`
+const BoardWrapper = styled.div`
   display: flex;
   flex-wrap: wrap;
   width: 640px;
@@ -124,11 +119,8 @@ export const Board = () => {
 
   const [state, dispatch] = useReducer(reducer, initialState)
 
-
   function handleDragStart(event: DragStartEvent) {
-
     const { active } = event
-
   }
 
   function handleDragEnd(event: DragEndEvent) {
@@ -137,12 +129,11 @@ export const Board = () => {
     console.log("Active?", active)
     console.log("Over?", over)
 
-
-    // dispatch({
-    //   type: 'move',
-    //   pieceId: event.,
-    //   destinationId: destination?.droppableId
-    // })
+    if (over) {
+      dispatch({
+        type: 'start'
+      })
+    }
 
   }
 
@@ -155,7 +146,7 @@ export const Board = () => {
     const piece = state.pieces[x][y] // grab the piece
     return (
       <Square color={black ? 'black' : 'white'} id={keygen(x, y, "square")}>
-        {piece ? <Piece {...piece} /> : <></>}
+        {piece ? <Piece x={x} y={y} {...piece} /> : <></>}
       </Square>
     )
   }
@@ -173,9 +164,12 @@ export const Board = () => {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
-    > <Wrapper>
-      {squares}
-    </Wrapper>
+    >
+      <BoardWrapper>
+        {squares}
+      </BoardWrapper>
+
+      {/*<p>{info}</p>*/}
 
     </DndContext>
   )

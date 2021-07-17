@@ -29,7 +29,7 @@ export const Test = () => {
           {'Drop here'}
         </Droppable>
 
-        <Piece key={"piecekey"} id={"pieceId"} color={PieceColor.Black} type={PieceType.Pawn} />
+        <Piece key={"piecekey"} id={"pieceId"} color={PieceColor.Black} type={PieceType.Pawn} x={0} y={0} />
       </DndContext>
 
 
