@@ -5,38 +5,58 @@ import { PieceType } from "./PieceType";
 import { Piece, PieceProps } from "./Piece";
 import { PieceColor } from "./PieceColor";
 import { Action } from "./Action";
-import { DndContext } from "@dnd-kit/core";
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
 
 const { Knight, Pawn, Bishop, Rook, Queen, King } = PieceType;
 const { Black, White } = PieceColor;
 
 // Black Team
-const BlackRook: PieceProps = { color: Black, type: Rook }
-const BlackKnight: PieceProps = { color: Black, type: Knight }
-const BlackBishop: PieceProps = { color: Black, type: Bishop }
-const BlackKing: PieceProps = { color: Black, type: King }
-const BlackQueen: PieceProps = { color: Black, type: Queen }
-const BlackPawn: PieceProps = { color: Black, type: Pawn }
+const BlackRook1: PieceProps = { id: "BRK1", color: Black, type: Rook }
+const BlackRook2: PieceProps = { id: "BRK2", color: Black, type: Rook }
+const BlackKnight1: PieceProps = { id: "BKT1", color: Black, type: Knight }
+const BlackKnight2: PieceProps = { id: "BKT2", color: Black, type: Knight }
+const BlackBishop1: PieceProps = { id: "BBP1", color: Black, type: Bishop }
+const BlackBishop2: PieceProps = { id: "BBP2", color: Black, type: Bishop }
+const BlackKing: PieceProps = { id: "BKG", color: Black, type: King }
+const BlackQueen: PieceProps = { id: "BQN", color: Black, type: Queen }
+const BlackPawn1: PieceProps = { id: "BP1", color: Black, type: Pawn }
+const BlackPawn2: PieceProps = { id: "BP2", color: Black, type: Pawn }
+const BlackPawn3: PieceProps = { id: "BP3", color: Black, type: Pawn }
+const BlackPawn4: PieceProps = { id: "BP4", color: Black, type: Pawn }
+const BlackPawn5: PieceProps = { id: "BP5", color: Black, type: Pawn }
+const BlackPawn6: PieceProps = { id: "BP6", color: Black, type: Pawn }
+const BlackPawn7: PieceProps = { id: "BP7", color: Black, type: Pawn }
+const BlackPawn8: PieceProps = { id: "BP8", color: Black, type: Pawn }
 
 // White Team
-const WhiteRook: PieceProps = { color: White, type: Rook }
-const WhiteKnight: PieceProps = { color: White, type: Knight }
-const WhiteBishop: PieceProps = { color: White, type: Bishop }
-const WhiteKing: PieceProps = { color: White, type: King }
-const WhiteQueen: PieceProps = { color: White, type: Queen }
-const WhitePawn: PieceProps = { color: White, type: Pawn }
+const WhiteRook1: PieceProps = { id: "WRK1", color: White, type: Rook }
+const WhiteRook2: PieceProps = { id: "WRK2", color: White, type: Rook }
+const WhiteKnight1: PieceProps = { id: "WKT1", color: White, type: Knight }
+const WhiteKnight2: PieceProps = { id: "WKT2", color: White, type: Knight }
+const WhiteBishop1: PieceProps = { id: "WBP1", color: White, type: Bishop }
+const WhiteBishop2: PieceProps = { id: "WBP2", color: White, type: Bishop }
+const WhiteKing: PieceProps = { id: "WKG", color: White, type: King }
+const WhiteQueen: PieceProps = { id: "WQN", color: White, type: Queen }
+const WhitePawn1: PieceProps = { id: "WP1", color: White, type: Pawn }
+const WhitePawn2: PieceProps = { id: "WP2", color: White, type: Pawn }
+const WhitePawn3: PieceProps = { id: "WP3", color: White, type: Pawn }
+const WhitePawn4: PieceProps = { id: "WP4", color: White, type: Pawn }
+const WhitePawn5: PieceProps = { id: "WP5", color: White, type: Pawn }
+const WhitePawn6: PieceProps = { id: "WP6", color: White, type: Pawn }
+const WhitePawn7: PieceProps = { id: "WP7", color: White, type: Pawn }
+const WhitePawn8: PieceProps = { id: "WP8", color: White, type: Pawn }
 
 
 const initialState: State = {
   pieces: [
-    [BlackRook, BlackKnight, BlackBishop, BlackQueen, BlackKing, BlackBishop, BlackKnight, BlackRook],
-    [BlackPawn, BlackPawn, BlackPawn, BlackPawn, BlackPawn, BlackPawn, BlackPawn, BlackPawn],
+    [BlackRook1, BlackKnight1, BlackBishop1, BlackQueen, BlackKing, BlackBishop2, BlackKnight2, BlackRook2],
+    [BlackPawn1, BlackPawn2, BlackPawn3, BlackPawn4, BlackPawn5, BlackPawn6, BlackPawn7, BlackPawn8],
     [],
     [],
     [],
     [],
-    [WhitePawn, WhitePawn, WhitePawn, WhitePawn, WhitePawn, WhitePawn, WhitePawn, WhitePawn],
-    [WhiteRook, WhiteKnight, WhiteBishop, WhiteQueen, WhiteKing, WhiteBishop, WhiteKnight, WhiteRook],
+    [WhitePawn1, WhitePawn2, WhitePawn3, WhitePawn4, WhitePawn5, WhitePawn6, WhitePawn7, WhitePawn8],
+    [WhiteRook1, WhiteKnight1, WhiteBishop1, WhiteQueen, WhiteKing, WhiteBishop2, WhiteKnight2, WhiteRook2],
   ],
   currentPlayer: 'white'
 }
@@ -109,7 +129,17 @@ export const Board = () => {
 
   }
 
-  function handleDragEnd() {
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    console.log("Active?", active)
+    console.log("Over?", over)
+
+    // dispatch({
+    //   type: 'move',
+    //   pieceId: event.,
+    //   destinationId: destination?.droppableId
+    // })
 
   }
 
@@ -121,7 +151,7 @@ export const Board = () => {
     const black = (x + y) % 2 === 1 // determine the colour of this square
     const piece = state.pieces[x][y] // grab the piece
     return (
-      <Square color={black ? 'black' : 'white'}>
+      <Square color={black ? 'black' : 'white'} key={keygen(x, y, "square")}>
         {piece ? <Piece {...piece} /> : <></>}
       </Square>
     )
@@ -133,23 +163,6 @@ export const Board = () => {
       squares.push(renderSquare(x, y))
     }
   }
-
-  // const performDrag = (result: DropResult) => {
-  //   const { draggableId, destination, reason, source } = result;
-  //
-  //   console.log("ID", draggableId)
-  //   console.log("dest", destination?.droppableId)
-  //   console.log("source", source.droppableId)
-  //   console.log("reason", reason)
-  //
-  //   dispatch({
-  //     type: 'move',
-  //     pieceId: source.droppableId,
-  //     destinationId: destination?.droppableId
-  //   })
-  //
-  //
-  // };
 
 
   return (

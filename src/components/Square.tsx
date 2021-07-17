@@ -1,9 +1,10 @@
 import { FC } from "react";
 import styled from "styled-components";
+import { useDroppable } from "@dnd-kit/core";
 
 export type SquareProps = {
   color: 'black' | 'white',
-  key?: number
+  key: string
 }
 
 
@@ -18,8 +19,10 @@ const Wrapper = styled.div<{ color: string }>`
 
 export const Square: FC<SquareProps> = ({ color, key, children }) => {
 
+  const { setNodeRef } = useDroppable({ id: key });
+
   return (
-    <Wrapper color={color} key={key}>
+    <Wrapper color={color} key={key} ref={setNodeRef}>
       {children}
     </Wrapper>
   )

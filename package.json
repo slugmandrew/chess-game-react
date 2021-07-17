@@ -18,6 +18,7 @@
     "framer-motion": "^4.0.0",
     "react": "^17.0.1",
     "@dnd-kit/core": "^3.1.1",
+    "@dnd-kit/utilities": "^2.0.0",
     "react-dom": "^17.0.1",
     "react-scripts": "4.0.3",
     "reactstrap": "^8.9.0",
