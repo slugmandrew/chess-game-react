@@ -1,4 +1,4 @@
-import {FC} from "react";
+import { FC } from "react";
 import styled from "styled-components";
 
 export type SquareProps = {
@@ -16,11 +16,11 @@ const Wrapper = styled.div<{ color: string }>`
   justify-content: center;
 `
 
-export const Square: FC<SquareProps> = ({color, key, children}) => {
+export const Square: FC<SquareProps> = ({ color, key, children }) => {
 
   return (
-      <Wrapper color={color} key={key}>
-        {children}
-      </Wrapper>
+    <Wrapper color={color} key={key}>
+      {children}
+    </Wrapper>
   )
 }

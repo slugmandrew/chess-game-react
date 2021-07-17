@@ -1,30 +1,30 @@
-import React, {useReducer} from "react";
-import {Square} from "./Square";
+import React, { useReducer } from "react";
+import { Square } from "./Square";
 import styled from "styled-components";
-import {PieceType} from "./PieceType";
-import {Piece, PieceProps} from "./Piece";
-import {PieceColor} from "./PieceColor";
-import {DragDropContext, Draggable, Droppable, DropResult} from "react-beautiful-dnd";
-import {Action} from "./Action";
+import { PieceType } from "./PieceType";
+import { Piece, PieceProps } from "./Piece";
+import { PieceColor } from "./PieceColor";
+import { Action } from "./Action";
+import { DndContext } from "@dnd-kit/core";
 
-const {Knight, Pawn, Bishop, Rook, Queen, King} = PieceType;
-const {Black, White} = PieceColor;
+const { Knight, Pawn, Bishop, Rook, Queen, King } = PieceType;
+const { Black, White } = PieceColor;
 
 // Black Team
-const BlackRook: PieceProps = {color: Black, type: Rook}
-const BlackKnight: PieceProps = {color: Black, type: Knight}
-const BlackBishop: PieceProps = {color: Black, type: Bishop}
-const BlackKing: PieceProps = {color: Black, type: King}
-const BlackQueen: PieceProps = {color: Black, type: Queen}
-const BlackPawn: PieceProps = {color: Black, type: Pawn}
+const BlackRook: PieceProps = { color: Black, type: Rook }
+const BlackKnight: PieceProps = { color: Black, type: Knight }
+const BlackBishop: PieceProps = { color: Black, type: Bishop }
+const BlackKing: PieceProps = { color: Black, type: King }
+const BlackQueen: PieceProps = { color: Black, type: Queen }
+const BlackPawn: PieceProps = { color: Black, type: Pawn }
 
 // White Team
-const WhiteRook: PieceProps = {color: White, type: Rook}
-const WhiteKnight: PieceProps = {color: White, type: Knight}
-const WhiteBishop: PieceProps = {color: White, type: Bishop}
-const WhiteKing: PieceProps = {color: White, type: King}
-const WhiteQueen: PieceProps = {color: White, type: Queen}
-const WhitePawn: PieceProps = {color: White, type: Pawn}
+const WhiteRook: PieceProps = { color: White, type: Rook }
+const WhiteKnight: PieceProps = { color: White, type: Knight }
+const WhiteBishop: PieceProps = { color: White, type: Bishop }
+const WhiteKing: PieceProps = { color: White, type: King }
+const WhiteQueen: PieceProps = { color: White, type: Queen }
+const WhitePawn: PieceProps = { color: White, type: Pawn }
 
 
 const initialState: State = {
@@ -105,35 +105,25 @@ export const Board = () => {
   const [state, dispatch] = useReducer(reducer, initialState)
 
 
+  function handleDragStart() {
+
+  }
+
+  function handleDragEnd() {
+
+  }
+
+  function handleDragCancel() {
+
+  }
+
   const renderSquare = (x: number, y: number) => {
-    const black = (x + y) % 2 === 1
-    const piece = state.pieces[x][y]
+    const black = (x + y) % 2 === 1 // determine the colour of this square
+    const piece = state.pieces[x][y] // grab the piece
     return (
-        <Droppable key={keygen(x, y, "square")} droppableId={`${x}-${y}`}>
-          {(dropProvider, dropSnapshot) => {
-            return (
-                <div ref={dropProvider.innerRef}
-                     {...dropProvider.droppableProps}>
-                  <Square color={black ? 'black' : 'white'}>
-                    {piece ?
-                     <Draggable draggableId={`${piece.color}-${piece.type}-${y}`} index={0}>
-                       {(dragProvider => (
-
-                           <div ref={dragProvider.innerRef}
-                                {...dragProvider.draggableProps}
-                                {...dragProvider.dragHandleProps}>
-                             <Piece {...piece} />
-                           </div>
-                       ))}
-                     </Draggable>
-                           : <></>}
-                    {dropProvider.placeholder}
-                  </Square>
-                </div>
-
-            )
-          }}
-        </Droppable>
+      <Square color={black ? 'black' : 'white'}>
+        {piece ? <Piece {...piece} /> : <></>}
+      </Square>
     )
   }
 
@@ -144,30 +134,33 @@ export const Board = () => {
     }
   }
 
-  const performDrag = (result: DropResult) => {
-    const {draggableId, destination, reason, source} = result;
-
-    console.log("ID", draggableId)
-    console.log("dest", destination?.droppableId)
-    console.log("source", source.droppableId)
-    console.log("reason", reason)
-
-    dispatch({
-      type: 'move',
-      pieceId: source.droppableId,
-      destinationId: destination?.droppableId
-    })
-
-
-  };
+  // const performDrag = (result: DropResult) => {
+  //   const { draggableId, destination, reason, source } = result;
+  //
+  //   console.log("ID", draggableId)
+  //   console.log("dest", destination?.droppableId)
+  //   console.log("source", source.droppableId)
+  //   console.log("reason", reason)
+  //
+  //   dispatch({
+  //     type: 'move',
+  //     pieceId: source.droppableId,
+  //     destinationId: destination?.droppableId
+  //   })
+  //
+  //
+  // };
 
 
   return (
-      <DragDropContext onDragEnd={performDrag}>
-        <Wrapper>
-          {squares}
-        </Wrapper>
-      </DragDropContext>
+    <DndContext
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
+    > <Wrapper>
+      {squares}
+    </Wrapper>
 
+    </DndContext>
   )
 }
