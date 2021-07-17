@@ -44,16 +44,14 @@ export const Piece: FC<PieceProps> = ({ id, type, color }) => {
     },
   });
 
-  // const style = transform ? {
-  //   transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-  // } : undefined;
-
   const style = {
     transform: CSS.Translate.toString(transform),
   }
 
   return (
-    <FontAwesomeIcon icon={iconLookup(type)} color={color} size={"4x"} style={style} forwardedRef={setNodeRef} {...listeners} {...attributes} />
+    <div style={style} ref={setNodeRef} {...listeners} {...attributes}>
+      <FontAwesomeIcon icon={iconLookup(type)} color={color} size={"3x"} />
+    </div>
   )
 
 }

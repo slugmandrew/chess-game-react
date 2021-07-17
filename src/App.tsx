@@ -1,13 +1,16 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
-import {Col, Container, Row} from "reactstrap";
-import {Board} from "./components/Board";
-
+import { Col, Container, Row } from "reactstrap";
+import { Board } from "./components/Board";
+import { BrowserRouter, Route, Switch } from "react-router-dom";
+import { Test } from "./Test";
 
 function App() {
+
   return (
-      <div className="App">
+    <div className="App">
+      <BrowserRouter>
         <Container>
           <Row>
             <Col>
@@ -16,11 +19,15 @@ function App() {
           </Row>
           <Row>
             <Col className={'d-flex justify-content-center'}>
-              <Board/>
+              <Switch>
+                <Route path={"/test"} component={Test} />
+                <Route exact path={"/"} component={Board} />
+              </Switch>
             </Col>
           </Row>
         </Container>
-      </div>
+      </BrowserRouter>
+    </div>
   );
 }
 

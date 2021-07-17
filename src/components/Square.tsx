@@ -3,27 +3,34 @@ import styled from "styled-components";
 import { useDroppable } from "@dnd-kit/core";
 
 export type SquareProps = {
+  id: string
   color: 'black' | 'white',
-  key: string
 }
 
 
 const Wrapper = styled.div<{ color: string }>`
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   background-color: ${props => props.color === 'white' ? 'bisque' : 'darkgray'};
   display: flex;
   align-items: center;
   justify-content: center;
 `
 
-export const Square: FC<SquareProps> = ({ color, key, children }) => {
+export const Square: FC<SquareProps> = ({ color, id, children }) => {
 
-  const { setNodeRef } = useDroppable({ id: key });
+  const { isOver, setNodeRef } = useDroppable({ id: id, data: { something: id } });
+
+  const style = {
+    border: isOver ? '3px solid green' : "none",
+  };
 
   return (
-    <Wrapper color={color} key={key} ref={setNodeRef}>
-      {children}
-    </Wrapper>
+    <div ref={setNodeRef}>
+      <Wrapper color={color} key={id} style={style}>
+        {children}
+      </Wrapper>
+    </div>
+
   )
 }

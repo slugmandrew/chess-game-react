@@ -5,7 +5,7 @@ import { PieceType } from "./PieceType";
 import { Piece, PieceProps } from "./Piece";
 import { PieceColor } from "./PieceColor";
 import { Action } from "./Action";
-import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import { DndContext, DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 
 const { Knight, Pawn, Bishop, Rook, Queen, King } = PieceType;
 const { Black, White } = PieceColor;
@@ -115,8 +115,8 @@ const keygen = (x: number, y: number, str: string) => {
 const Wrapper = styled.div`
   display: flex;
   flex-wrap: wrap;
-  width: 800px;
-  height: 800px;
+  width: 640px;
+  height: 640px;
 `
 
 
@@ -125,7 +125,9 @@ export const Board = () => {
   const [state, dispatch] = useReducer(reducer, initialState)
 
 
-  function handleDragStart() {
+  function handleDragStart(event: DragStartEvent) {
+
+    const { active } = event
 
   }
 
@@ -134,6 +136,7 @@ export const Board = () => {
 
     console.log("Active?", active)
     console.log("Over?", over)
+
 
     // dispatch({
     //   type: 'move',
@@ -151,7 +154,7 @@ export const Board = () => {
     const black = (x + y) % 2 === 1 // determine the colour of this square
     const piece = state.pieces[x][y] // grab the piece
     return (
-      <Square color={black ? 'black' : 'white'} key={keygen(x, y, "square")}>
+      <Square color={black ? 'black' : 'white'} id={keygen(x, y, "square")}>
         {piece ? <Piece {...piece} /> : <></>}
       </Square>
     )
