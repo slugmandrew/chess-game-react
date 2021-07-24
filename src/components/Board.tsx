@@ -70,10 +70,27 @@ const reducer = (state: State, action: Action): State => {
       return pos >= 0 && pos < 8
     }
 
+    const performKnightJump = (incrementX: 1 | -1 | 2 | -2, incrementY: 1 | -1 | 2 | -2) => {
+      // newX and newY are the shifted coordinates
+      let newX = operator(x, incrementX)
+      let newY = operator(y, incrementY)
+
+      if (inRange(newX) && inRange(newY)) {
+        const pieceAlreadyThere = state.pieces[newX][newY]
+        console.log('pieceAlreadyThere', pieceAlreadyThere)
+        if (pieceAlreadyThere) {
+          console.log('Path is blocked, stopping')
+          validMoves[newX][newY] = true
+        } else {
+          validMoves[newX][newY] = true
+        }
+      }
+    }
+
     const walkDiagonalPath = (incrementX: 1 | -1, incrementY: 1 | -1, limit: 1 | 7) => {
       let pathIsClear = true
 
-      // newVar is the shifted coordinate
+      // newX and newY are the shifted coordinates
       let newX = operator(x, incrementX)
       let newY = operator(y, incrementY)
       let count = 0
@@ -161,6 +178,15 @@ const reducer = (state: State, action: Action): State => {
 
         break
       case PieceType.Knight:
+        performKnightJump(1, 2)
+        performKnightJump(1, -2)
+        performKnightJump(2, 1)
+        performKnightJump(2, -1)
+        performKnightJump(-1, -2)
+        performKnightJump(-1, 2)
+        performKnightJump(-2, 1)
+        performKnightJump(-2, -1)
+
         break
       case PieceType.Rook:
         // Rook can walk in a straight line for an unlimited number of squares
