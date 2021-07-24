@@ -80,36 +80,43 @@ const reducer = (state: State, action: Action): State => {
           break;
         case PieceType.Rook:
 
+          // Rook has to walk in all 4 directions in a straight line
 
-          let pathIsClearX = true
-          let newX = operator(x, 1)
-          while (pathIsClearX && newX >= 0 && newX < 8) {
-            let pieceAlreadyThere = state.pieces[newX][y];
-            console.log("pieceAlreadyThere", pieceAlreadyThere)
-            if (pieceAlreadyThere) {
-              // TODO piece collision
-              validMoves[newX][y] = true
-              pathIsClearX = false
-            } else {
-              validMoves[newX][y] = true
-              newX = operator(newX, 1)
+          // pass in the axis and whether to increment / decrement
+          const walkPath = (axisIn: "x" | "y", direction: 1 | -1) => {
+
+            let pathIsClear = true
+            const isX = axisIn === "x";
+            const isY = axisIn === "y";
+            const axis = isX ? x : y
+
+            // newVar is the shifted coordinate
+            let newVar = operator(axis, direction)
+
+            // while no piece is in the way, and we are still on the board
+            while (pathIsClear && newVar >= 0 && newVar < 8) {
+              // whether to increment each dimension of the array
+              const chosenX = isX ? newVar : x;
+              const chosenY = isY ? newVar : y;
+              // detect existing piece so we stop walking
+              const pieceAlreadyThere = state.pieces[chosenX][chosenY];
+              console.log("pieceAlreadyThere", pieceAlreadyThere)
+              if (pieceAlreadyThere) {
+                validMoves[chosenX][chosenY] = true
+                pathIsClear = false
+              } else {
+                validMoves[chosenX][chosenY] = true
+                newVar = operator(newVar, direction)
+              }
             }
+
           }
 
-          let pathIsClearY = true
-          let newY = operator(y, 1)
-          while (pathIsClearY && newY >= 0 && newY < 8) {
-            let pieceAlreadyThere = state.pieces[x][newY];
-            console.log("pieceAlreadyThere", pieceAlreadyThere)
-            if (pieceAlreadyThere) {
-              // TODO piece collision
-              validMoves[x][newY] = true
-              pathIsClearY = false
-            } else {
-              validMoves[x][newY] = true
-              newY = operator(newY, 1)
-            }
-          }
+          // walk both axes in both directions
+          walkPath("x", 1)
+          walkPath("x", -1)
+          walkPath("y", 1)
+          walkPath("y", -1)
 
           break;
         case PieceType.Pawn: {
@@ -168,7 +175,7 @@ const reducer = (state: State, action: Action): State => {
               activePiece.x = destX
               activePiece.y = destY
 
-              // now moce the piece
+              // now move the piece
               let newPieces = state.pieces.slice()
               newPieces[destX][destY] = activePiece
               newPieces[x][y] = undefined
