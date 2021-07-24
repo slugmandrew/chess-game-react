@@ -38,7 +38,7 @@ const WhiteKnight1: PieceProps = { id: 'WKT1', color: White, type: Knight, x: 7,
 const WhiteBishop1: PieceProps = { id: 'WBP1', color: White, type: Bishop, x: 7, y: 2 }
 const WhiteQueen: PieceProps = { id: 'WQN', color: White, type: Queen, x: 7, y: 3 }
 const WhiteKing: PieceProps = { id: 'WKG', color: White, type: King, x: 7, y: 4 }
-const WhiteBishop2: PieceProps = { id: 'WBP2', color: White, type: Bishop, x: 7, y: 5 }
+const WhiteBishop2: PieceProps = { id: 'WBP2', color: White, type: Bishop, x: 4, y: 3 }
 const WhiteKnight2: PieceProps = { id: 'WKT2', color: White, type: Knight, x: 7, y: 6 }
 const WhiteRook2: PieceProps = { id: 'WRK2', color: White, type: Rook, x: 7, y: 7 }
 

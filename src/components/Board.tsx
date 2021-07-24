@@ -66,6 +66,36 @@ const reducer = (state: State, action: Action): State => {
     // choose which way to go
     const operator = piece.color === PieceColor.Black ? plus : minus
 
+    const inRange = (pos: number) => {
+      return pos >= 0 && pos < 8
+    }
+
+    const walkDiagonalPath = (incrementX: 1 | -1, incrementY: 1 | -1, limit: 1 | 7) => {
+      let pathIsClear = true
+
+      // newVar is the shifted coordinate
+      let newX = operator(x, incrementX)
+      let newY = operator(y, incrementY)
+      let count = 0
+
+      while (pathIsClear && inRange(newX) && inRange(newY) && count < limit) {
+        count++
+        // whether to increment each dimension of the array
+        // detect existing piece so we stop walking
+        const pieceAlreadyThere = state.pieces[newX][newY]
+        console.log('pieceAlreadyThere', pieceAlreadyThere)
+        if (pieceAlreadyThere) {
+          console.log('Path is blocked, stopping')
+          validMoves[newX][newY] = true
+          pathIsClear = false
+        } else {
+          validMoves[newX][newY] = true
+          newX = operator(newX, incrementX)
+          newY = operator(newY, incrementY)
+        }
+      }
+    }
+
     // pass in the axis and whether to increment / decrement
     const walkStraightPath = (axisIn: 'x' | 'y', direction: 1 | -1, limit: 1 | 2 | 7) => {
       let pathIsClear = true
@@ -78,7 +108,7 @@ const reducer = (state: State, action: Action): State => {
       let count = 0
 
       // while no piece is in the way, and we are still on the board
-      while (pathIsClear && newVar >= 0 && newVar < 8 && count < limit) {
+      while (pathIsClear && inRange(newVar) && count < limit) {
         count++
         // whether to increment each dimension of the array
         const chosenX = isX ? newVar : x
@@ -104,16 +134,36 @@ const reducer = (state: State, action: Action): State => {
         walkStraightPath('x', -1, 1)
         walkStraightPath('y', 1, 1)
         walkStraightPath('y', -1, 1)
+        walkDiagonalPath(1, 1, 1)
+        walkDiagonalPath(1, -1, 1)
+        walkDiagonalPath(-1, 1, 1)
+        walkDiagonalPath(-1, -1, 1)
 
         break
       case PieceType.Queen:
+        // Queen can walk in any direction for an unlimited number of squares
+        walkStraightPath('x', 1, 7)
+        walkStraightPath('x', -1, 7)
+        walkStraightPath('y', 1, 7)
+        walkStraightPath('y', -1, 7)
+        walkDiagonalPath(1, 1, 7)
+        walkDiagonalPath(1, -1, 7)
+        walkDiagonalPath(-1, 1, 7)
+        walkDiagonalPath(-1, -1, 7)
+
         break
       case PieceType.Bishop:
+        // Bishop can walk diagonally for any number of squares
+        walkDiagonalPath(1, 1, 7)
+        walkDiagonalPath(1, -1, 7)
+        walkDiagonalPath(-1, 1, 7)
+        walkDiagonalPath(-1, -1, 7)
+
         break
       case PieceType.Knight:
         break
       case PieceType.Rook:
-        // Rook can walk both axes in both directions for an unlimited number of squares
+        // Rook can walk in a straight line for an unlimited number of squares
         walkStraightPath('x', 1, 7)
         walkStraightPath('x', -1, 7)
         walkStraightPath('y', 1, 7)
@@ -121,12 +171,11 @@ const reducer = (state: State, action: Action): State => {
 
         break
       case PieceType.Pawn: {
-        // the two squares in front
+        // Pawn can move two squares in front if not attacking
         walkStraightPath('x', 1, 2)
-
-        // the two diagonals
-        validMoves[operator(x, 1)][operator(y, 1)] = true
-        validMoves[operator(x, 1)][operator(y, -1)] = true
+        // ... and can kill on its two forward diagonals
+        walkDiagonalPath(1, 1, 1)
+        walkDiagonalPath(1, -1, 1)
 
         break
       }
