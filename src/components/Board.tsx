@@ -72,17 +72,17 @@ const reducer = (state: State, action: Action): State => {
       return pos >= 0 && pos < 8
     }
 
-    const assessSquare = (x: number, y: number, onSuccess?: Function, onFailure?: Function) => {
+    const assessSquare = (x: number, y: number, mustKill = false, canKill = true, onSquareEmpty?: Function, onSquareOccupied?: Function) => {
       if (inRange(x) && inRange(y)) {
         const pieceAlreadyThere = state.pieces[x][y]
         console.log('pieceAlreadyThere', pieceAlreadyThere)
         if (pieceAlreadyThere) {
           console.log(`Path is blocked by ${pieceAlreadyThere.color} ${pieceAlreadyThere.type}, stopping`)
-          validMoves[x][y] = true
-          if (onFailure) onFailure()
+          validMoves[x][y] = canKill
+          if (onSquareOccupied) onSquareOccupied()
         } else {
-          validMoves[x][y] = true
-          if (onSuccess) onSuccess()
+          validMoves[x][y] = !mustKill
+          if (onSquareEmpty) onSquareEmpty()
         }
       }
     }
@@ -95,7 +95,7 @@ const reducer = (state: State, action: Action): State => {
       assessSquare(newX, newY)
     }
 
-    const walkDiagonalPath = (incrementX: 1 | -1, incrementY: 1 | -1, limit: 1 | 7) => {
+    const walkDiagonalPath = (incrementX: 1 | -1, incrementY: 1 | -1, limit: 1 | 7, mustKill = false) => {
       let pathIsClear = true
 
       // newX and newY are the shifted coordinates
@@ -109,6 +109,8 @@ const reducer = (state: State, action: Action): State => {
         assessSquare(
           newX,
           newY,
+          mustKill,
+          true,
           () => {
             newX = operator(newX, incrementX)
             newY = operator(newY, incrementY)
@@ -119,7 +121,7 @@ const reducer = (state: State, action: Action): State => {
     }
 
     // pass in the axis and whether to increment / decrement, as well as a distance limit
-    const walkStraightPath = (axisIn: 'x' | 'y', direction: 1 | -1, limit: 1 | 2 | 7) => {
+    const walkStraightPath = (axisIn: 'x' | 'y', direction: 1 | -1, limit: 1 | 2 | 7, canKill = false) => {
       let pathIsClear = true
       const isX = axisIn === 'x'
       const axis = isX ? x : y
@@ -137,6 +139,8 @@ const reducer = (state: State, action: Action): State => {
         assessSquare(
           newX,
           newY,
+          false,
+          canKill,
           () => (newVar = operator(newVar, direction)),
           () => (pathIsClear = false),
         )
@@ -200,8 +204,8 @@ const reducer = (state: State, action: Action): State => {
         // Pawn can move two squares in front if not attacking
         walkStraightPath('x', 1, 2)
         // ... and can kill on its two forward diagonals
-        walkDiagonalPath(1, 1, 1)
-        walkDiagonalPath(1, -1, 1)
+        walkDiagonalPath(1, 1, 1, true)
+        walkDiagonalPath(1, -1, 1, true)
 
         break
       }
