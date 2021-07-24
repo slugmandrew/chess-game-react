@@ -7,15 +7,12 @@ import { PieceColor } from "./PieceColor";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from '@dnd-kit/utilities';
 
-export interface PieceWithPositionProps extends PieceProps {
-  x: number
-  y: number
-}
-
 export interface PieceProps {
   id: string
   color: PieceColor
   type: PieceType
+  x: number
+  y: number
 }
 
 export const iconLookup = (type: PieceType): IconProp => {
@@ -39,7 +36,7 @@ export const iconLookup = (type: PieceType): IconProp => {
 }
 
 
-export const Piece: FC<PieceWithPositionProps> = ({ id, type, color, x, y }) => {
+export const Piece: FC<PieceProps> = ({ id, type, color, x, y }) => {
 
   const { setNodeRef, listeners, attributes, transform } = useDraggable({
     id: id,

@@ -18,7 +18,7 @@ function App() {
             </Col>
           </Row>
           <Row>
-            <Col className={'d-flex justify-content-center'}>
+            <Col>
               <Switch>
                 <Route path={"/test"} component={Test} />
                 <Route exact path={"/"} component={Board} />
