@@ -1,13 +1,12 @@
-import React from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './App.css';
-import { Col, Container, Row } from "reactstrap";
-import { Board } from "./components/Board";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
-import { Test } from "./Test";
+import React from 'react'
+import 'bootstrap/dist/css/bootstrap.min.css'
+import './App.css'
+import { Col, Container, Row } from 'reactstrap'
+import { Board } from './components/Board'
+import { BrowserRouter, Route, Switch } from 'react-router-dom'
+import { Test } from './Test'
 
 function App() {
-
   return (
     <div className="App">
       <BrowserRouter>
@@ -20,15 +19,15 @@ function App() {
           <Row>
             <Col>
               <Switch>
-                <Route path={"/test"} component={Test} />
-                <Route exact path={"/"} component={Board} />
+                <Route path={'/test'} component={Test} />
+                <Route exact path={'/'} component={Board} />
               </Switch>
             </Col>
           </Row>
         </Container>
       </BrowserRouter>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
