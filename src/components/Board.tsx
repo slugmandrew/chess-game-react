@@ -122,7 +122,7 @@ const reducer = (state: State, action: Action): State => {
     }
 
     // pass in the axis and whether to increment / decrement, as well as a distance limit
-    const walkStraightPath = (axisIn: 'x' | 'y', direction: 1 | -1, limit: 1 | 2 | 7, canKill = false) => {
+    const walkStraightPath = (axisIn: 'x' | 'y', direction: 1 | -1, limit: 1 | 2 | 7, canKill = true) => {
       let pathIsClear = true
       const isX = axisIn === 'x'
       const axis = isX ? x : y
@@ -148,38 +148,37 @@ const reducer = (state: State, action: Action): State => {
       }
     }
 
+    function walkAllDiagonals(distance: 1 | 7) {
+      walkDiagonalPath(1, 1, distance)
+      walkDiagonalPath(1, -1, distance)
+      walkDiagonalPath(-1, 1, distance)
+      walkDiagonalPath(-1, -1, distance)
+    }
+
+    function walkAllStraights(distance: 1 | 2 | 7) {
+      walkStraightPath('x', 1, distance)
+      walkStraightPath('x', -1, distance)
+      walkStraightPath('y', 1, distance)
+      walkStraightPath('y', -1, distance)
+    }
+
     // calculate moves based on piece type
     switch (piece.type) {
       case PieceType.King:
         // King can walk in any direction for one square
-        walkStraightPath('x', 1, 1)
-        walkStraightPath('x', -1, 1)
-        walkStraightPath('y', 1, 1)
-        walkStraightPath('y', -1, 1)
-        walkDiagonalPath(1, 1, 1)
-        walkDiagonalPath(1, -1, 1)
-        walkDiagonalPath(-1, 1, 1)
-        walkDiagonalPath(-1, -1, 1)
+        walkAllStraights(1)
+        walkAllDiagonals(1)
 
         break
       case PieceType.Queen:
         // Queen can walk in any direction for an unlimited number of squares
-        walkStraightPath('x', 1, 7)
-        walkStraightPath('x', -1, 7)
-        walkStraightPath('y', 1, 7)
-        walkStraightPath('y', -1, 7)
-        walkDiagonalPath(1, 1, 7)
-        walkDiagonalPath(1, -1, 7)
-        walkDiagonalPath(-1, 1, 7)
-        walkDiagonalPath(-1, -1, 7)
+        walkAllDiagonals(7)
+        walkAllStraights(7)
 
         break
       case PieceType.Bishop:
         // Bishop can walk diagonally for any number of squares
-        walkDiagonalPath(1, 1, 7)
-        walkDiagonalPath(1, -1, 7)
-        walkDiagonalPath(-1, 1, 7)
-        walkDiagonalPath(-1, -1, 7)
+        walkAllDiagonals(7)
 
         break
       case PieceType.Knight:
@@ -195,15 +194,12 @@ const reducer = (state: State, action: Action): State => {
         break
       case PieceType.Rook:
         // Rook can walk in a straight line for an unlimited number of squares
-        walkStraightPath('x', 1, 7)
-        walkStraightPath('x', -1, 7)
-        walkStraightPath('y', 1, 7)
-        walkStraightPath('y', -1, 7)
+        walkAllStraights(7)
 
         break
       case PieceType.Pawn: {
         // Pawn can move two squares in front if not attacking
-        walkStraightPath('x', 1, 2)
+        walkStraightPath('x', 1, 2, false)
         // ... and can kill on its two forward diagonals
         walkDiagonalPath(1, 1, 1, true)
         walkDiagonalPath(1, -1, 1, true)
