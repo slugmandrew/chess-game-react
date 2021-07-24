@@ -67,7 +67,7 @@ const reducer = (state: State, action: Action): State => {
     const operator = piece.color === PieceColor.Black ? plus : minus
 
     // pass in the axis and whether to increment / decrement
-    const walkStraightPath = (axisIn: 'x' | 'y', direction: 1 | -1, limit: 1 | 7) => {
+    const walkStraightPath = (axisIn: 'x' | 'y', direction: 1 | -1, limit: 1 | 2 | 7) => {
       let pathIsClear = true
       const isX = axisIn === 'x'
       const isY = axisIn === 'y'
@@ -122,8 +122,7 @@ const reducer = (state: State, action: Action): State => {
         break
       case PieceType.Pawn: {
         // the two squares in front
-        validMoves[operator(x, 1)][y] = true
-        validMoves[operator(x, 2)][y] = true
+        walkStraightPath('x', 1, 2)
 
         // the two diagonals
         validMoves[operator(x, 1)][operator(y, 1)] = true
