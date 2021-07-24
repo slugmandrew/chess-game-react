@@ -66,7 +66,8 @@ const reducer = (state: State, action: Action): State => {
     console.log(`Piece is at [${x},${y}]`)
 
     // choose which way to go
-    const operator = piece.color === PieceColor.Black ? plus : minus
+    let isBlack = piece.color === PieceColor.Black
+    const operator = isBlack ? plus : minus
 
     const inRange = (pos: number) => {
       return pos >= 0 && pos < 8
@@ -74,11 +75,11 @@ const reducer = (state: State, action: Action): State => {
 
     const assessSquare = (x: number, y: number, mustKill = false, canKill = true, onSquareEmpty?: Function, onSquareOccupied?: Function) => {
       if (inRange(x) && inRange(y)) {
-        const pieceAlreadyThere = state.pieces[x][y]
-        console.log('pieceAlreadyThere', pieceAlreadyThere)
-        if (pieceAlreadyThere) {
-          console.log(`Path is blocked by ${pieceAlreadyThere.color} ${pieceAlreadyThere.type}, stopping`)
-          validMoves[x][y] = canKill
+        const targetPiece = state.pieces[x][y]
+        console.log('targetPiece', targetPiece)
+        if (targetPiece) {
+          console.log(`Path is blocked by ${targetPiece.color} ${targetPiece.type}, stopping`)
+          validMoves[x][y] = piece.color === targetPiece.color ? false : canKill
           if (onSquareOccupied) onSquareOccupied()
         } else {
           validMoves[x][y] = !mustKill
