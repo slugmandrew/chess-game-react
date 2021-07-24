@@ -66,9 +66,45 @@ const reducer = (state: State, action: Action): State => {
     // choose which way to go
     const operator = piece.color === PieceColor.Black ? plus : minus
 
+    // pass in the axis and whether to increment / decrement
+    const walkStraightPath = (axisIn: 'x' | 'y', direction: 1 | -1, limit: 1 | 7) => {
+      let pathIsClear = true
+      const isX = axisIn === 'x'
+      const isY = axisIn === 'y'
+      const axis = isX ? x : y
+
+      // newVar is the shifted coordinate
+      let newVar = operator(axis, direction)
+      let count = 0
+
+      // while no piece is in the way, and we are still on the board
+      while (pathIsClear && newVar >= 0 && newVar < 8 && count < limit) {
+        count++
+        // whether to increment each dimension of the array
+        const chosenX = isX ? newVar : x
+        const chosenY = isY ? newVar : y
+        // detect existing piece so we stop walking
+        const pieceAlreadyThere = state.pieces[chosenX][chosenY]
+        console.log('pieceAlreadyThere', pieceAlreadyThere)
+        if (pieceAlreadyThere) {
+          validMoves[chosenX][chosenY] = true
+          pathIsClear = false
+        } else {
+          validMoves[chosenX][chosenY] = true
+          newVar = operator(newVar, direction)
+        }
+      }
+    }
+
     // calculate moves based on piece type
     switch (piece.type) {
       case PieceType.King:
+        // King can walk in any direction for one square
+        walkStraightPath('x', 1, 1)
+        walkStraightPath('x', -1, 1)
+        walkStraightPath('y', 1, 1)
+        walkStraightPath('y', -1, 1)
+
         break
       case PieceType.Queen:
         break
@@ -77,41 +113,11 @@ const reducer = (state: State, action: Action): State => {
       case PieceType.Knight:
         break
       case PieceType.Rook:
-        // Rook has to walk in all 4 directions in a straight line
-
-        // pass in the axis and whether to increment / decrement
-        const walkPath = (axisIn: 'x' | 'y', direction: 1 | -1) => {
-          let pathIsClear = true
-          const isX = axisIn === 'x'
-          const isY = axisIn === 'y'
-          const axis = isX ? x : y
-
-          // newVar is the shifted coordinate
-          let newVar = operator(axis, direction)
-
-          // while no piece is in the way, and we are still on the board
-          while (pathIsClear && newVar >= 0 && newVar < 8) {
-            // whether to increment each dimension of the array
-            const chosenX = isX ? newVar : x
-            const chosenY = isY ? newVar : y
-            // detect existing piece so we stop walking
-            const pieceAlreadyThere = state.pieces[chosenX][chosenY]
-            console.log('pieceAlreadyThere', pieceAlreadyThere)
-            if (pieceAlreadyThere) {
-              validMoves[chosenX][chosenY] = true
-              pathIsClear = false
-            } else {
-              validMoves[chosenX][chosenY] = true
-              newVar = operator(newVar, direction)
-            }
-          }
-        }
-
-        // walk both axes in both directions
-        walkPath('x', 1)
-        walkPath('x', -1)
-        walkPath('y', 1)
-        walkPath('y', -1)
+        // Rook can walk both axes in both directions for an unlimited number of squares
+        walkStraightPath('x', 1, 7)
+        walkStraightPath('x', -1, 7)
+        walkStraightPath('y', 1, 7)
+        walkStraightPath('y', -1, 7)
 
         break
       case PieceType.Pawn: {
