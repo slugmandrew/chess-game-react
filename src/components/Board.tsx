@@ -59,7 +59,11 @@ const reducer = (state: State, action: Action): State => {
 
     const getValidMoves: (piece: PieceProps) => Array<Array<boolean>> = (piece: PieceProps) => {
 
-      const validMoves = resetArray()
+      let validMoves = resetArray()
+
+      // grab the coordinates
+      const { x, y } = piece
+      console.log(`Piece is at [${x},${y}]`)
 
       // choose which way to go
       const operator = piece.color === PieceColor.Black ? plus : minus
@@ -75,11 +79,27 @@ const reducer = (state: State, action: Action): State => {
         case PieceType.Knight:
           break;
         case PieceType.Rook:
+
+
+          let pathIsClear = true
+          let newX = operator(x, 1)
+
+          while (pathIsClear && newX > 0 && newX < 8) {
+            let pieceAlreadyThere = state.pieces[newX][y];
+            console.log("pieceAlreadyThere", pieceAlreadyThere)
+            if (pieceAlreadyThere) {
+              // TODO piece collision
+              validMoves[newX][y] = true
+              pathIsClear = false
+            } else {
+              validMoves[newX][y] = true
+              newX = operator(newX, 1)
+            }
+
+          }
+
           break;
         case PieceType.Pawn: {
-          const { x, y } = piece
-
-          console.log(`Piece is at [${x},${y}]`)
 
           // the two squares in front
           validMoves[operator(x, 1)][y] = true
