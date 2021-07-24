@@ -5,6 +5,8 @@ import { useDroppable } from "@dnd-kit/core";
 export type SquareProps = {
   id: string
   color: 'black' | 'white',
+  x: number
+  y: number
 }
 
 

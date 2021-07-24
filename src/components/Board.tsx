@@ -2,16 +2,16 @@ import React, { useReducer } from "react";
 import { Square } from "./Square";
 import styled from "styled-components";
 import { Piece, PieceProps } from "./Piece";
-import { Active, DndContext, DragEndEvent, DragStartEvent } from "@dnd-kit/core";
+import { Active, DndContext, DragEndEvent, DragStartEvent, Over } from "@dnd-kit/core";
 import { Col, Row } from "reactstrap";
 import { piecesList } from "../Constants";
 
 
 type Action =
   | { type: 'start' }
-  | { type: 'move', pieceX: number, pieceY: number, destX: number, destY: number }
+  | { type: 'move', payload: { active: Active, over: Over } }
   | { type: 'reset' }
-  | { type: "setActivePiece", payload: Active }
+  | { type: "setActivePiece", payload: { active: Active } }
   | { type: "clearActivePiece" }
 
 type State = {
@@ -34,29 +34,50 @@ const initialState: State = {
 
 const reducer = (state: State, action: Action): State => {
 
+    const getPiece = (pieceId: string) => state.pieces.reduce<PieceProps | undefined>((acc, current) => {
+      return acc ?? current.find((cell) => cell?.id === pieceId);
+    }, undefined);
+
     switch (action.type) {
       case "start": {
         return state
       }
       case "move": {
-        const { pieceX, pieceY, destX, destY } = action
+        const { active, over } = action.payload
 
-        console.log("pieceX", pieceX)
-        console.log("pieceY", pieceY)
 
-        let pieceInDestination: PieceProps | undefined = state.pieces[destX][destY]
-        console.log("Piece in destination", pieceInDestination)
+        const activePiece = getPiece(active.id)
 
-        /// if we are moving to a blank square
-        if (!pieceInDestination) {
-          let newPieces = state.pieces.slice()
-          newPieces[destX][destY] = state.pieces[pieceX][pieceY]
-          newPieces[pieceX][pieceY] = undefined
-          return {
-            ...state,
-            pieces: newPieces
+        if (activePiece) {
+
+          let { x, y } = activePiece
+
+          console.log("Active Piece", activePiece)
+
+          const split = over.id.split("-")
+
+          console.log(split)
+
+          const destX = parseInt(split[1])
+          const destY = parseInt(split[2])
+
+          const pieceInDestination: PieceProps | undefined = state.pieces[destX][destY]
+          console.log("Piece in destination", pieceInDestination)
+
+
+          // if we are moving to a blank square
+          if (!pieceInDestination) {
+            let newPieces = state.pieces.slice()
+            newPieces[destX][destY] = state.pieces[x][y]
+            newPieces[x][y] = undefined
+            return {
+              ...state,
+              pieces: newPieces
+            }
           }
+
         }
+
 
         return state // default return same state}
       }
@@ -66,11 +87,9 @@ const reducer = (state: State, action: Action): State => {
 
       case "setActivePiece": {
 
-        const pieceId = action.payload.id
+        const pieceId = action.payload.active.id
 
-        const piece = state.pieces.reduce<PieceProps | undefined>((acc, current) => {
-          return acc ?? current.find((cell) => cell?.id === pieceId);
-        }, undefined)
+        const piece = getPiece(pieceId)
 
         if (piece)
           return { ...state, movingPiece: piece }
@@ -88,6 +107,10 @@ const reducer = (state: State, action: Action): State => {
 
 const keygen = (x: number, y: number, str: string) => {
   return `${str}-${(x + (y * 8))}`;
+}
+
+const keygen2 = (x: number, y: number, str: string) => {
+  return `${str}-${x}-${y}`;
 }
 
 
@@ -108,7 +131,7 @@ export const Board = () => {
 
     console.log("Start (active)", active)
 
-    dispatch({ type: "setActivePiece", payload: active })
+    dispatch({ type: "setActivePiece", payload: { active } })
 
   }
 
@@ -121,7 +144,8 @@ export const Board = () => {
 
     if (over) {
       dispatch({
-        type: 'start'
+        type: 'move',
+        payload: { active, over }
       })
     }
 
@@ -137,7 +161,7 @@ export const Board = () => {
     const black = (x + y) % 2 === 1 // determine the colour of this square
     const piece = state.pieces[x][y] // grab the piece
     return (
-      <Square color={black ? 'black' : 'white'} id={keygen(x, y, "square")}>
+      <Square color={black ? 'black' : 'white'} id={keygen2(x, y, "square")} x={x} y={y}>
         {piece ? <Piece {...piece} /> : <></>}
       </Square>
     )
@@ -168,8 +192,7 @@ export const Board = () => {
       <Row>
         <Col>
           <p><strong>Moving Piece:</strong> {state.movingPiece ? state.movingPiece?.id : "None"}</p>
-          <p><strong>From X:</strong> {state.movingPiece ? state.movingPiece?.x : "None"}</p>
-          <p><strong>From Y:</strong> {state.movingPiece ? state.movingPiece?.y : "None"}</p>
+          <p><strong>From X, Y:</strong> {state.movingPiece ? state.movingPiece?.x + ", " + state.movingPiece.y : "None"}</p>
         </Col>
       </Row>
 
