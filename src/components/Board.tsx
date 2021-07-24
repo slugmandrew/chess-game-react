@@ -1,12 +1,15 @@
-import React, { useReducer } from 'react'
+import React, { FC, PropsWithChildren, useReducer } from 'react'
 import { Square } from './Square'
 import styled from 'styled-components'
-import { Piece, PieceProps } from './Piece'
-import { Active, DndContext, DragEndEvent, DragStartEvent, Over } from '@dnd-kit/core'
+import { iconLookup, Piece, PieceProps } from './Piece'
+import { Active, DndContext, DragEndEvent, DragStartEvent, Over, useDraggable } from '@dnd-kit/core'
 import { Col, Row } from 'reactstrap'
 import { piecesList } from '../Constants'
 import { PieceType } from './PieceType'
 import { PieceColor } from './PieceColor'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { CSS } from '@dnd-kit/utilities'
+import { Draggable } from './Draggable'
 
 type Action = { type: 'start' } | { type: 'move'; payload: { active: Active; over: Over } } | { type: 'reset' } | { type: 'setActivePiece'; payload: { active: Active } } | { type: 'clearActivePiece' }
 
@@ -260,11 +263,10 @@ const reducer = (state: State, action: Action): State => {
 
               // now move the piece
               let newPieces = state.pieces.slice()
-              // let newGraveyard = state.graveyard.slice()
-              // newGraveyard.push(pieceInDestination)
               newPieces[destX][destY] = activePiece
               newPieces[x][y] = undefined
 
+              // add the old piece to the graveyard
               return {
                 ...state,
                 pieces: newPieces,
@@ -348,7 +350,13 @@ export const Board = () => {
     const piece = state.pieces[x][y] // grab the piece
     return (
       <Square color={black ? 'black' : 'white'} id={keygen2(x, y, 'square')} x={x} y={y} validMove={state.validMoves[x][y]}>
-        {piece ? <Piece {...piece} /> : <></>}
+        {piece ? (
+          <Draggable id={piece.id}>
+            <Piece {...piece} />
+          </Draggable>
+        ) : (
+          <></>
+        )}
       </Square>
     )
   }
