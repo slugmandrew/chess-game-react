@@ -70,21 +70,27 @@ const reducer = (state: State, action: Action): State => {
       return pos >= 0 && pos < 8
     }
 
+    const assessSquare = (x: number, y: number, onSuccess?: Function, onFailure?: Function) => {
+      if (inRange(x) && inRange(y)) {
+        const pieceAlreadyThere = state.pieces[x][y]
+        console.log('pieceAlreadyThere', pieceAlreadyThere)
+        if (pieceAlreadyThere) {
+          console.log(`Path is blocked by ${pieceAlreadyThere.color} ${pieceAlreadyThere.type}, stopping`)
+          validMoves[x][y] = true
+          if (onFailure) onFailure()
+        } else {
+          validMoves[x][y] = true
+          if (onSuccess) onSuccess()
+        }
+      }
+    }
+
     const performKnightJump = (incrementX: 1 | -1 | 2 | -2, incrementY: 1 | -1 | 2 | -2) => {
       // newX and newY are the shifted coordinates
       let newX = operator(x, incrementX)
       let newY = operator(y, incrementY)
 
-      if (inRange(newX) && inRange(newY)) {
-        const pieceAlreadyThere = state.pieces[newX][newY]
-        console.log('pieceAlreadyThere', pieceAlreadyThere)
-        if (pieceAlreadyThere) {
-          console.log('Path is blocked, stopping')
-          validMoves[newX][newY] = true
-        } else {
-          validMoves[newX][newY] = true
-        }
-      }
+      assessSquare(newX, newY)
     }
 
     const walkDiagonalPath = (incrementX: 1 | -1, incrementY: 1 | -1, limit: 1 | 7) => {
@@ -93,53 +99,45 @@ const reducer = (state: State, action: Action): State => {
       // newX and newY are the shifted coordinates
       let newX = operator(x, incrementX)
       let newY = operator(y, incrementY)
-      let count = 0
+      let squaresTravelled = 0
 
-      while (pathIsClear && inRange(newX) && inRange(newY) && count < limit) {
-        count++
-        // whether to increment each dimension of the array
-        // detect existing piece so we stop walking
-        const pieceAlreadyThere = state.pieces[newX][newY]
-        console.log('pieceAlreadyThere', pieceAlreadyThere)
-        if (pieceAlreadyThere) {
-          console.log('Path is blocked, stopping')
-          validMoves[newX][newY] = true
-          pathIsClear = false
-        } else {
-          validMoves[newX][newY] = true
-          newX = operator(newX, incrementX)
-          newY = operator(newY, incrementY)
-        }
+      while (pathIsClear && squaresTravelled < limit) {
+        squaresTravelled++
+
+        assessSquare(
+          newX,
+          newY,
+          () => {
+            newX = operator(newX, incrementX)
+            newY = operator(newY, incrementY)
+          },
+          () => (pathIsClear = false),
+        )
       }
     }
 
-    // pass in the axis and whether to increment / decrement
+    // pass in the axis and whether to increment / decrement, as well as a distance limit
     const walkStraightPath = (axisIn: 'x' | 'y', direction: 1 | -1, limit: 1 | 2 | 7) => {
       let pathIsClear = true
       const isX = axisIn === 'x'
-      const isY = axisIn === 'y'
       const axis = isX ? x : y
 
       // newVar is the shifted coordinate
       let newVar = operator(axis, direction)
-      let count = 0
+      let squaresTravelled = 0
 
       // while no piece is in the way, and we are still on the board
-      while (pathIsClear && inRange(newVar) && count < limit) {
-        count++
-        // whether to increment each dimension of the array
-        const chosenX = isX ? newVar : x
-        const chosenY = isY ? newVar : y
-        // detect existing piece so we stop walking
-        const pieceAlreadyThere = state.pieces[chosenX][chosenY]
-        console.log('pieceAlreadyThere', pieceAlreadyThere)
-        if (pieceAlreadyThere) {
-          validMoves[chosenX][chosenY] = true
-          pathIsClear = false
-        } else {
-          validMoves[chosenX][chosenY] = true
-          newVar = operator(newVar, direction)
-        }
+      while (pathIsClear && squaresTravelled < limit) {
+        squaresTravelled++
+        const newX = isX ? newVar : x
+        const newY = !isX ? newVar : y
+
+        assessSquare(
+          newX,
+          newY,
+          () => (newVar = operator(newVar, direction)),
+          () => (pathIsClear = false),
+        )
       }
     }
 
