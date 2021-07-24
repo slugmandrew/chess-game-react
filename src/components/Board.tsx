@@ -81,21 +81,34 @@ const reducer = (state: State, action: Action): State => {
         case PieceType.Rook:
 
 
-          let pathIsClear = true
+          let pathIsClearX = true
           let newX = operator(x, 1)
-
-          while (pathIsClear && newX > 0 && newX < 8) {
+          while (pathIsClearX && newX >= 0 && newX < 8) {
             let pieceAlreadyThere = state.pieces[newX][y];
             console.log("pieceAlreadyThere", pieceAlreadyThere)
             if (pieceAlreadyThere) {
               // TODO piece collision
               validMoves[newX][y] = true
-              pathIsClear = false
+              pathIsClearX = false
             } else {
               validMoves[newX][y] = true
               newX = operator(newX, 1)
             }
+          }
 
+          let pathIsClearY = true
+          let newY = operator(y, 1)
+          while (pathIsClearY && newY >= 0 && newY < 8) {
+            let pieceAlreadyThere = state.pieces[x][newY];
+            console.log("pieceAlreadyThere", pieceAlreadyThere)
+            if (pieceAlreadyThere) {
+              // TODO piece collision
+              validMoves[x][newY] = true
+              pathIsClearY = false
+            } else {
+              validMoves[x][newY] = true
+              newY = operator(newY, 1)
+            }
           }
 
           break;
