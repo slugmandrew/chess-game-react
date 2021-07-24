@@ -21,7 +21,7 @@ export const Test = () => {
       <h1>Test Page</h1>
 
       <DndContext onDragEnd={handleDragEnd}>
-        <Square key={"mykey"} color={"black"} id={"mykey123"} x={0} y={0} />
+        <Square key={"mykey"} color={"black"} id={"mykey123"} x={0} y={0} validMove={false} />
 
         <Draggable>Drag me</Draggable>
 

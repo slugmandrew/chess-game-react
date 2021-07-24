@@ -5,7 +5,8 @@ import { Piece, PieceProps } from "./Piece";
 import { Active, DndContext, DragEndEvent, DragStartEvent, Over } from "@dnd-kit/core";
 import { Col, Row } from "reactstrap";
 import { piecesList } from "../Constants";
-
+import { PieceType } from "./PieceType";
+import { PieceColor } from "./PieceColor";
 
 type Action =
   | { type: 'start' }
@@ -18,6 +19,17 @@ type State = {
   pieces: Array<Array<PieceProps | undefined>>,
   currentPlayer: 'black' | 'white'
   movingPiece: PieceProps | null
+  validMoves: boolean[][]
+}
+
+type Position = {
+  x: number
+  y: number
+}
+
+const PositionImpl: (x: number, y: number) => void = (x: number, y: number) => {
+  if (x < 0 || x > 8) throw new Error(`The value of X was outside the accepted range: [${x}]`)
+  if (y < 0 || y > 8) throw new Error(`The value of Y was outside the accepted range: [${y}]`)
 }
 
 function setupBoard(): PieceProps[][] {
@@ -26,11 +38,18 @@ function setupBoard(): PieceProps[][] {
   return pieces
 }
 
+const resetArray = () => Array(8).fill(false).map(x => Array(8).fill(false));
+
 const initialState: State = {
   pieces: setupBoard(),
   currentPlayer: 'white',
-  movingPiece: null
+  movingPiece: null,
+  validMoves: resetArray()
+
 }
+
+const plus = (a: number, b: number) => a + b
+const minus = (a: number, b: number) => a - b
 
 const reducer = (state: State, action: Action): State => {
 
@@ -38,13 +57,54 @@ const reducer = (state: State, action: Action): State => {
       return acc ?? current.find((cell) => cell?.id === pieceId);
     }, undefined);
 
+    const getValidMoves: (piece: PieceProps) => Array<Array<boolean>> = (piece: PieceProps) => {
+
+      const validMoves = resetArray()
+
+      // choose which way to go
+      const operator = piece.color === PieceColor.Black ? plus : minus
+
+      // calculate moves based on piece type
+      switch (piece.type) {
+        case PieceType.King:
+          break;
+        case PieceType.Queen:
+          break;
+        case PieceType.Bishop:
+          break;
+        case PieceType.Knight:
+          break;
+        case PieceType.Rook:
+          break;
+        case PieceType.Pawn: {
+          const { x, y } = piece
+
+          console.log(`Piece is at [${x},${y}]`)
+
+          // the two squares in front
+          validMoves[operator(x, 1)][y] = true
+          validMoves[operator(x, 2)][y] = true
+
+          // the two diagonals
+          validMoves[operator(x, 1)][operator(y, 1)] = true
+          validMoves[operator(x, 1)][operator(y, -1)] = true
+
+          break;
+
+        }
+
+      }
+
+      return validMoves
+
+    }
+
     switch (action.type) {
       case "start": {
         return state
       }
       case "move": {
         const { active, over } = action.payload
-
 
         const activePiece = getPiece(active.id)
 
@@ -64,22 +124,35 @@ const reducer = (state: State, action: Action): State => {
           const pieceInDestination: PieceProps | undefined = state.pieces[destX][destY]
           console.log("Piece in destination", pieceInDestination)
 
+          const validMoves = getValidMoves(activePiece)
 
-          // if we are moving to a blank square
-          if (!pieceInDestination) {
-            let newPieces = state.pieces.slice()
-            newPieces[destX][destY] = state.pieces[x][y]
-            newPieces[x][y] = undefined
-            return {
-              ...state,
-              pieces: newPieces
+          if (validMoves[destX][destY]) {
+
+            // if we are moving to a blank square
+            if (!pieceInDestination) {
+
+              // first make the piece aware of it's new coordinates
+              activePiece.x = destX
+              activePiece.y = destY
+
+              // now moce the piece
+              let newPieces = state.pieces.slice()
+              newPieces[destX][destY] = activePiece
+              newPieces[x][y] = undefined
+              return {
+                ...state,
+                pieces: newPieces,
+                validMoves: resetArray()
+              }
             }
+
           }
+
 
         }
 
-
-        return state // default return same state}
+        console.log("No action, returning same state")
+        return state // default return same state
       }
       case "reset": {
         return state
@@ -91,13 +164,16 @@ const reducer = (state: State, action: Action): State => {
 
         const piece = getPiece(pieceId)
 
-        if (piece)
-          return { ...state, movingPiece: piece }
-        else
+        if (piece) {
+
+          const validMoves = getValidMoves(piece)
+
+          return { ...state, movingPiece: piece, validMoves: validMoves }
+        } else
           return state
       }
       case "clearActivePiece": {
-        return { ...state, movingPiece: null }
+        return { ...state, movingPiece: null, validMoves: resetArray() }
       }
 
     }
@@ -105,7 +181,7 @@ const reducer = (state: State, action: Action): State => {
   }
 ;
 
-const keygen = (x: number, y: number, str: string) => {
+const keygen: (x: number, y: number, str: string) => string = (x: number, y: number, str: string) => {
   return `${str}-${(x + (y * 8))}`;
 }
 
@@ -161,7 +237,7 @@ export const Board = () => {
     const black = (x + y) % 2 === 1 // determine the colour of this square
     const piece = state.pieces[x][y] // grab the piece
     return (
-      <Square color={black ? 'black' : 'white'} id={keygen2(x, y, "square")} x={x} y={y}>
+      <Square color={black ? 'black' : 'white'} id={keygen2(x, y, "square")} x={x} y={y} validMove={state.validMoves[x][y]}>
         {piece ? <Piece {...piece} /> : <></>}
       </Square>
     )
@@ -193,6 +269,19 @@ export const Board = () => {
         <Col>
           <p><strong>Moving Piece:</strong> {state.movingPiece ? state.movingPiece?.id : "None"}</p>
           <p><strong>From X, Y:</strong> {state.movingPiece ? state.movingPiece?.x + ", " + state.movingPiece.y : "None"}</p>
+          <p><strong>Valid Moves:</strong></p>
+          <div>
+            {state.validMoves.map((items, index) => {
+              return (
+                <>
+                  {items.map((subItem, sIndex) => {
+                    if (subItem) return <> [{index} , {sIndex}] </>;
+                  })}
+                </>
+              );
+            })}
+          </div>
+
         </Col>
       </Row>
 
