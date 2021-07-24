@@ -2,11 +2,10 @@ import React, { useReducer } from "react";
 import { Square } from "./Square";
 import styled from "styled-components";
 import { PieceType } from "./PieceType";
-import { Piece, PieceProps } from "./Piece";
+import { Piece, PieceProps, PieceWithPositionProps } from "./Piece";
 import { PieceColor } from "./PieceColor";
-import { Action } from "./Action";
-import { DndContext, DragEndEvent, DragStartEvent } from "@dnd-kit/core";
-import { Data } from "@dnd-kit/core/dist/store";
+import { Active, DndContext, DragEndEvent, DragStartEvent } from "@dnd-kit/core";
+import { Col, Container, Row } from "reactstrap";
 
 const { Knight, Pawn, Bishop, Rook, Queen, King } = PieceType;
 const { Black, White } = PieceColor;
@@ -47,6 +46,18 @@ const WhitePawn6: PieceProps = { id: "WP6", color: White, type: Pawn }
 const WhitePawn7: PieceProps = { id: "WP7", color: White, type: Pawn }
 const WhitePawn8: PieceProps = { id: "WP8", color: White, type: Pawn }
 
+type Action =
+  | { type: 'start' }
+  | { type: 'move', pieceX: number, pieceY: number, destX: number, destY: number }
+  | { type: 'reset' }
+  | { type: "setActivePiece", payload: Active }
+  | { type: "clearActivePiece" }
+
+type State = {
+  pieces: Array<Array<PieceProps | undefined>>,
+  currentPlayer: 'black' | 'white'
+  movingPiece: PieceProps | null
+}
 
 const initialState: State = {
   pieces: [
@@ -59,48 +70,63 @@ const initialState: State = {
     [WhitePawn1, WhitePawn2, WhitePawn3, WhitePawn4, WhitePawn5, WhitePawn6, WhitePawn7, WhitePawn8],
     [WhiteRook1, WhiteKnight1, WhiteBishop1, WhiteQueen, WhiteKing, WhiteBishop2, WhiteKnight2, WhiteRook2],
   ],
-  currentPlayer: 'white'
-}
-type State = {
-  pieces: Array<Array<PieceProps | undefined>>,
-  currentPlayer: 'black' | 'white'
+  currentPlayer: 'white',
+  movingPiece: null
 }
 
 const reducer = (state: State, action: Action): State => {
 
-  switch (action.type) {
-    case "start":
-      return state
-    case "move":
+    switch (action.type) {
+      case "start": {
+        return state
+      }
+      case "move": {
+        const { pieceX, pieceY, destX, destY } = action
 
-      const { pieceX, pieceY, destX, destY } = action
+        console.log("pieceX", pieceX)
+        console.log("pieceY", pieceY)
 
-      console.log("pieceX", pieceX)
-      console.log("pieceY", pieceY)
+        let pieceInDestination: PieceProps | undefined = state.pieces[destX][destY]
+        console.log("Piece in destination", pieceInDestination)
 
-
-      let pieceInDestination: PieceProps | undefined = state.pieces[destX][destY]
-      console.log("Piece in destination", pieceInDestination)
-
-      /// if we are moving to a blank square
-      if (!pieceInDestination) {
-        let newPieces = state.pieces.slice()
-        newPieces[destX][destY] = state.pieces[pieceX][pieceY]
-        newPieces[pieceX][pieceY] = undefined
-        return {
-          ...state,
-          pieces: newPieces
+        /// if we are moving to a blank square
+        if (!pieceInDestination) {
+          let newPieces = state.pieces.slice()
+          newPieces[destX][destY] = state.pieces[pieceX][pieceY]
+          newPieces[pieceX][pieceY] = undefined
+          return {
+            ...state,
+            pieces: newPieces
+          }
         }
+
+        return state // default return same state}
+      }
+      case "reset": {
+        return state
       }
 
-      return state // default return same state
+      case "setActivePiece": {
 
-    case "reset":
-      return state
+        const pieceId = action.payload.id
+
+        const piece = state.pieces.reduce<PieceProps | undefined>((acc, current) => {
+          return acc ?? current.find((cell) => cell?.id === pieceId);
+        }, undefined)
+
+        if (piece)
+          return { ...state, movingPiece: piece }
+        else
+          return state
+      }
+      case "clearActivePiece": {
+        return { ...state, movingPiece: null }
+      }
+
+    }
 
   }
-
-};
+;
 
 const keygen = (x: number, y: number, str: string) => {
   return `${str}-${(x + (y * 8))}`;
@@ -110,8 +136,8 @@ const keygen = (x: number, y: number, str: string) => {
 const BoardWrapper = styled.div`
   display: flex;
   flex-wrap: wrap;
-  width: 640px;
-  height: 640px;
+  width: 480px;
+  height: 480px;
 `
 
 
@@ -121,7 +147,13 @@ export const Board = () => {
 
   function handleDragStart(event: DragStartEvent) {
     const { active } = event
+
+    console.log("Start (active)", active)
+
+    dispatch({ type: "setActivePiece", payload: active })
+
   }
+
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -134,6 +166,8 @@ export const Board = () => {
         type: 'start'
       })
     }
+
+    dispatch({ type: "clearActivePiece" })
 
   }
 
@@ -165,11 +199,22 @@ export const Board = () => {
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <BoardWrapper>
-        {squares}
-      </BoardWrapper>
 
-      {/*<p>{info}</p>*/}
+      <Container>
+        <Row>
+          <Col>
+            <BoardWrapper>
+              {squares}
+            </BoardWrapper>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <p><strong>Moving Piece:</strong> {state.movingPiece ? state.movingPiece?.id : "None"}</p>
+          </Col>
+        </Row>
+      </Container>
+
 
     </DndContext>
   )

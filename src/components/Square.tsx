@@ -9,8 +9,8 @@ export type SquareProps = {
 
 
 const Wrapper = styled.div<{ color: string }>`
-  width: 80px;
-  height: 80px;
+  width: 60px;
+  height: 60px;
   background-color: ${props => props.color === 'white' ? 'bisque' : 'darkgray'};
   display: flex;
   align-items: center;
