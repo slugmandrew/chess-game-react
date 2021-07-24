@@ -12,6 +12,7 @@ type Action = { type: 'start' } | { type: 'move'; payload: { active: Active; ove
 
 type State = {
   pieces: Array<Array<PieceProps | undefined>>
+  graveyard: Array<PieceProps>
   currentPlayer: 'black' | 'white'
   movingPiece: PieceProps | null
   validMoves: boolean[][]
@@ -42,6 +43,7 @@ const resetArray = () =>
 
 const initialState: State = {
   pieces: setupBoard(),
+  graveyard: [],
   currentPlayer: 'white',
   movingPiece: null,
   validMoves: resetArray(),
@@ -250,6 +252,25 @@ const reducer = (state: State, action: Action): State => {
               pieces: newPieces,
               validMoves: resetArray(),
             }
+          } else {
+            if (pieceInDestination.color !== activePiece.color) {
+              activePiece.x = destX
+              activePiece.y = destY
+
+              // now move the piece
+              let newPieces = state.pieces.slice()
+              // let newGraveyard = state.graveyard.slice()
+              // newGraveyard.push(pieceInDestination)
+              newPieces[destX][destY] = activePiece
+              newPieces[x][y] = undefined
+
+              return {
+                ...state,
+                pieces: newPieces,
+                validMoves: resetArray(),
+                graveyard: [...state.graveyard, pieceInDestination],
+              }
+            }
           }
         }
       }
@@ -364,11 +385,22 @@ export const Board = () => {
                     if (subItem)
                       return (
                         <>
-                          {' '}
-                          [{index} , {sIndex}]{' '}
+                          [{index}, {sIndex}]{'  '}
                         </>
                       )
                   })}
+                </>
+              )
+            })}
+          </div>
+          <p>
+            <strong>Graveyard:</strong>
+          </p>
+          <div>
+            {state.graveyard.map((item, index) => {
+              return (
+                <>
+                  [{item.color} {item.type}]{'  '}
                 </>
               )
             })}
