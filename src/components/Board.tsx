@@ -2,7 +2,7 @@ import React, { FC, PropsWithChildren, useReducer } from 'react'
 import { Square } from './Square'
 import styled from 'styled-components'
 import { iconLookup, Piece, PieceProps } from './Piece'
-import { Active, DndContext, DragEndEvent, DragStartEvent, Over, useDraggable } from '@dnd-kit/core'
+import { Active, DndContext, DragEndEvent, DragOverlay, DragStartEvent, Over, useDraggable } from '@dnd-kit/core'
 import { Col, Row } from 'reactstrap'
 import { piecesList } from '../Constants'
 import { PieceType } from './PieceType'
@@ -10,6 +10,8 @@ import { PieceColor } from './PieceColor'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { CSS } from '@dnd-kit/utilities'
 import { Draggable } from './Draggable'
+import { AnimateSharedLayout } from 'framer-motion'
+import { motion } from 'framer-motion'
 
 type Action = { type: 'start' } | { type: 'move'; payload: { active: Active; over: Over } } | { type: 'reset' } | { type: 'setActivePiece'; payload: { active: Active } } | { type: 'clearActivePiece' }
 
@@ -351,9 +353,12 @@ export const Board = () => {
     return (
       <Square color={black ? 'black' : 'white'} id={keygen2(x, y, 'square')} x={x} y={y} validMove={state.validMoves[x][y]}>
         {piece ? (
-          <Draggable id={piece.id}>
-            <Piece {...piece} />
-          </Draggable>
+          <>
+            <Draggable id={piece.id}>
+              <Piece {...piece} />
+            </Draggable>
+            <DragOverlay>X</DragOverlay>
+          </>
         ) : (
           <></>
         )}
@@ -369,53 +374,58 @@ export const Board = () => {
   }
 
   return (
-    <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDragCancel={handleDragCancel}>
-      <Row>
-        <Col className={'d-flex justify-content-center'}>
-          <BoardWrapper>{squares}</BoardWrapper>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <p>
-            <strong>Moving Piece:</strong> {state.movingPiece ? state.movingPiece?.id : 'None'}
-          </p>
-          <p>
-            <strong>From X, Y:</strong> {state.movingPiece ? state.movingPiece?.x + ', ' + state.movingPiece.y : 'None'}
-          </p>
-          <p>
-            <strong>Valid Moves:</strong>
-          </p>
-          <div>
-            {state.validMoves.map((items, index) => {
-              return (
-                <>
-                  {items.map((subItem, sIndex) => {
-                    if (subItem)
-                      return (
-                        <>
-                          [{index}, {sIndex}]{'  '}
-                        </>
-                      )
-                  })}
-                </>
-              )
-            })}
-          </div>
-          <p>
-            <strong>Graveyard:</strong>
-          </p>
-          <div>
-            {state.graveyard.map((item, index) => {
-              return (
-                <>
-                  [{item.color} {item.type}]{'  '}
-                </>
-              )
-            })}
-          </div>
-        </Col>
-      </Row>
-    </DndContext>
+    <AnimateSharedLayout>
+      <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDragCancel={handleDragCancel}>
+        <Row>
+          <Col className={'d-flex justify-content-center'}>
+            <BoardWrapper>{squares}</BoardWrapper>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <motion.div drag="x" dragConstraints={{ left: -100, right: 100 }}>
+              I am in a div
+            </motion.div>
+            <p>
+              <strong>Moving Piece:</strong> {state.movingPiece ? state.movingPiece?.id : 'None'}
+            </p>
+            <p>
+              <strong>From X, Y:</strong> {state.movingPiece ? state.movingPiece?.x + ', ' + state.movingPiece.y : 'None'}
+            </p>
+            <p>
+              <strong>Valid Moves:</strong>
+            </p>
+            <div>
+              {state.validMoves.map((items, index) => {
+                return (
+                  <>
+                    {items.map((subItem, sIndex) => {
+                      if (subItem)
+                        return (
+                          <>
+                            [{index}, {sIndex}]{'  '}
+                          </>
+                        )
+                    })}
+                  </>
+                )
+              })}
+            </div>
+            <p>
+              <strong>Graveyard:</strong>
+            </p>
+            <div>
+              {state.graveyard.map((item, index) => {
+                return (
+                  <>
+                    [{item.color} {item.type}]{'  '}
+                  </>
+                )
+              })}
+            </div>
+          </Col>
+        </Row>
+      </DndContext>
+    </AnimateSharedLayout>
   )
 }
