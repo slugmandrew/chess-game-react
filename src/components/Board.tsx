@@ -1,17 +1,15 @@
-import React, { FC, PropsWithChildren, useReducer } from 'react'
+import React, { useReducer } from 'react'
 import { Square } from './Square'
 import styled from 'styled-components'
-import { iconLookup, Piece, PieceProps } from './Piece'
-import { Active, DndContext, DragEndEvent, DragOverlay, DragStartEvent, Over, useDraggable } from '@dnd-kit/core'
+import { Piece, PieceProps } from './Piece'
+import { Active, DndContext, DragEndEvent, DragStartEvent, Over } from '@dnd-kit/core'
 import { Col, Row } from 'reactstrap'
 import { piecesList } from '../Constants'
 import { PieceType } from './PieceType'
 import { PieceColor } from './PieceColor'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { CSS } from '@dnd-kit/utilities'
 import { Draggable } from './Draggable'
-import { AnimateSharedLayout } from 'framer-motion'
-import { motion } from 'framer-motion'
+import { AnimateSharedLayout, motion } from 'framer-motion'
+import { Button } from 'primereact/button'
 
 type Action =
   | { type: 'start' }
@@ -42,7 +40,15 @@ function setupBoard(): PieceProps[][] {
   const pieces: PieceProps[][] = Array(8)
     .fill(0)
     .map((x) => Array(8).fill(0))
-  piecesList.forEach((piece) => (pieces[piece.x][piece.y] = piece))
+  piecesList.forEach((piece) => {
+    pieces[piece.x][piece.y] = {
+      color: piece.color,
+      id: piece.id,
+      type: piece.type,
+      x: piece.x,
+      y: piece.y,
+    }
+  })
   return pieces
 }
 
@@ -223,7 +229,9 @@ const reducer = (state: State, action: Action): State => {
 
   switch (action.type) {
     case 'start': {
-      return state
+      let newBoard = setupBoard()
+      console.log('newbOard', newBoard)
+      return { ...state, pieces: newBoard }
     }
     case 'move': {
       const { active, over } = action.payload
@@ -383,6 +391,11 @@ export const Board = () => {
         <Row>
           <Col className={'d-flex justify-content-center'}>
             <BoardWrapper>{squares}</BoardWrapper>
+          </Col>
+        </Row>
+        <Row>
+          <Col className={'d-flex justify-content-center'}>
+            <Button onClick={() => dispatch({ type: 'start' })}>Reset</Button>
           </Col>
         </Row>
         <Row>
