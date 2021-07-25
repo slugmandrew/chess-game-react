@@ -13,7 +13,12 @@ import { Draggable } from './Draggable'
 import { AnimateSharedLayout } from 'framer-motion'
 import { motion } from 'framer-motion'
 
-type Action = { type: 'start' } | { type: 'move'; payload: { active: Active; over: Over } } | { type: 'reset' } | { type: 'setActivePiece'; payload: { active: Active } } | { type: 'clearActivePiece' }
+type Action =
+  | { type: 'start' }
+  | { type: 'move'; payload: { active: Active; over: Over } }
+  | { type: 'reset' }
+  | { type: 'setActivePiece'; payload: { active: Active } }
+  | { type: 'clearActivePiece' }
 
 type State = {
   pieces: Array<Array<PieceProps | undefined>>
@@ -357,7 +362,6 @@ export const Board = () => {
             <Draggable id={piece.id}>
               <Piece {...piece} />
             </Draggable>
-            <DragOverlay>X</DragOverlay>
           </>
         ) : (
           <></>

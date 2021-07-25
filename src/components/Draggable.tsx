@@ -5,6 +5,13 @@ import { AnimatePresence, motion } from 'framer-motion'
 
 export const Draggable: FC<{ id: string }> = ({ id, children }) => {
   const { setNodeRef, listeners, attributes, transform, active, isDragging } = useDraggable({ id: id })
+
+  const initialStyles = {
+    x: 0,
+    y: 0,
+    scale: 1,
+  }
+
   return (
     <>
       <div
@@ -16,15 +23,23 @@ export const Draggable: FC<{ id: string }> = ({ id, children }) => {
       </div>
       <div
         style={{
-          transform: CSS.Translate.toString(transform),
           position: 'absolute',
         }}>
         <AnimatePresence>
           <motion.div
             key={id}
-            animate={{ scale: [1, 1.4, 1], rotate: [0, 360] }}
-            initial={true}
-            transition={{ duration: 0.8, ease: 'easeInOut' }}
+            animate={
+              transform
+                ? {
+                    x: transform.x,
+                    y: transform.y,
+                    scale: isDragging ? 1.2 : 1,
+                    skew: isDragging ? 5 : 0,
+                    zIndex: isDragging ? 1 : 0,
+                  }
+                : initialStyles
+            }
+            initial={false}
             exit={{ translateX: 200, translateY: 500 }}
             ref={setNodeRef}
             {...listeners}
