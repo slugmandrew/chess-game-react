@@ -1,7 +1,6 @@
-import { FC, useState } from 'react'
+import React, { FC } from 'react'
 import styled from 'styled-components'
 import { useDroppable } from '@dnd-kit/core'
-import { PieceProps } from './Piece'
 
 export type SquareProps = {
   id: string
@@ -23,19 +22,7 @@ const Wrapper = styled.div<{ color: string; isOver: boolean; validMove: boolean 
 `
 
 export const Square: FC<SquareProps> = ({ color, id, validMove, children, x, y }) => {
-  const { isOver, setNodeRef, active } = useDroppable({ id: id, data: { something: id } })
-  // const [moveAllowed, setMoveAllowed] = useState(false)
-
-  // console.log("ActiveSquare", active)
-
-  // if (active) {
-  //   const pieceBeingMoved = pieces.reduce<PieceProps | undefined>((acc, current) => {
-  //     return acc ?? current.find((cell) => cell?.id === active.id);
-  //   }, undefined)
-  //   if (pieceBeingMoved) {
-  //     setMoveAllowed(x - pieceBeingMoved.x < 2)
-  //   }
-  // }
+  const { isOver, setNodeRef } = useDroppable({ id: id, data: { something: id } })
 
   return (
     <div ref={setNodeRef}>
