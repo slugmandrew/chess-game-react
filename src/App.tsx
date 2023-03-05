@@ -1,21 +1,40 @@
 import React from 'react'
-import 'primereact/resources/themes/saga-blue/theme.css'
-import 'primereact/resources/primereact.min.css'
-import 'primeicons/primeicons.css'
-import 'primeflex/primeflex.css'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import { Test } from './Test'
 import { Chess } from './components/Chess'
+import { AppShell, Footer, Header, Title } from '@mantine/core'
+
+const Main = () => (
+  <BrowserRouter>
+    <Switch>
+      <Route path={'/test'} component={Test} />
+      <Route exact path={'/'} component={Chess} />
+    </Switch>
+  </BrowserRouter>
+)
 
 function App() {
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Switch>
-          <Route path={'/test'} component={Test} />
-          <Route exact path={'/'} component={Chess} />
-        </Switch>
-      </BrowserRouter>
+    <div>
+      <AppShell
+        padding="md"
+        header={
+          <Header height={60} p="xs">
+            <Title order={2}>Chess Game</Title>
+          </Header>
+        }
+        footer={
+          <Footer height={60} p="md">
+            Application footer
+          </Footer>
+        }
+        styles={(theme) => ({
+          main: {
+            backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
+          },
+        })}>
+        <Main />
+      </AppShell>
     </div>
   )
 }

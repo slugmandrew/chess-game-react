@@ -1,12 +1,12 @@
 import React, { useReducer } from 'react'
 import { AnimateSharedLayout, motion } from 'framer-motion'
 import { Active, DndContext, DragEndEvent, DragStartEvent, Over } from '@dnd-kit/core'
-import { Button } from 'primereact/button'
 import { Board } from './Board'
 import { PieceProps } from './Piece'
 import { PieceColor } from './PieceColor'
 import { piecesList } from '../Constants'
 import { PieceType } from './PieceType'
+import { Button } from '@mantine/core'
 
 type Action =
   | { type: 'start' }
@@ -355,62 +355,51 @@ export const Chess = () => {
   return (
     <AnimateSharedLayout>
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDragCancel={handleDragCancel}>
-        <div className="p-d-flex p-flex-column p-align-center">
-          <div className="p-mb-2">
-            <h1>Chess Game</h1>
-          </div>
-          <div className="p-mb-2">
-            <Board {...state} />
-          </div>
-          <div className="p-mb-2">
-            <Button onClick={() => dispatch({ type: 'start' })}>Reset</Button>
-          </div>
-        </div>
+        <Board {...state} />
+        <Button onClick={() => dispatch({ type: 'start' })}>Reset</Button>
 
-        <div className="p-d-flex p-flex-column p-align-center">
-          <motion.div drag="x" dragConstraints={{ left: -100, right: 100 }}>
-            I am in a div
-          </motion.div>
-          <p>
-            <strong>Current Player:</strong> {state.currentPlayer}
-          </p>
-          <p>
-            <strong>Moving Piece:</strong> {state.movingPiece ? state.movingPiece?.id : 'None'}
-          </p>
-          <p>
-            <strong>From X, Y:</strong> {state.movingPiece ? state.movingPiece?.x + ', ' + state.movingPiece.y : 'None'}
-          </p>
-          <p>
-            <strong>Valid Moves:</strong>
-          </p>
-          <div>
-            {state.validMoves.map((items, index) => {
-              return (
-                <>
-                  {items.map((subItem, sIndex) => {
-                    if (subItem)
-                      return (
-                        <>
-                          [{index}, {sIndex}]{'  '}
-                        </>
-                      )
-                  })}
-                </>
-              )
-            })}
-          </div>
-          <p>
-            <strong>Graveyard:</strong>
-          </p>
-          <div>
-            {state.graveyard.map((item, index) => {
-              return (
-                <>
-                  [{item.color} {item.type}]{'  '}
-                </>
-              )
-            })}
-          </div>
+        <motion.div drag="x" dragConstraints={{ left: -100, right: 100 }}>
+          I am in a div
+        </motion.div>
+        <p>
+          <strong>Current Player:</strong> {state.currentPlayer}
+        </p>
+        <p>
+          <strong>Moving Piece:</strong> {state.movingPiece ? state.movingPiece?.id : 'None'}
+        </p>
+        <p>
+          <strong>From X, Y:</strong> {state.movingPiece ? state.movingPiece?.x + ', ' + state.movingPiece.y : 'None'}
+        </p>
+        <p>
+          <strong>Valid Moves:</strong>
+        </p>
+        <div>
+          {state.validMoves.map((items, index) => {
+            return (
+              <>
+                {items.map((subItem, sIndex) => {
+                  if (subItem)
+                    return (
+                      <span key={`${subItem}-${sIndex}`}>
+                        [{index}, {sIndex}]{'  '}
+                      </span>
+                    )
+                })}
+              </>
+            )
+          })}
+        </div>
+        <p>
+          <strong>Graveyard:</strong>
+        </p>
+        <div>
+          {state.graveyard.map((item, index) => {
+            return (
+              <span key={`${item}-${index}`}>
+                [{item.color} {item.type}]{'  '}
+              </span>
+            )
+          })}
         </div>
       </DndContext>
     </AnimateSharedLayout>

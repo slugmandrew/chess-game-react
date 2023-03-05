@@ -11,13 +11,13 @@ export type SquareProps = {
 }
 
 const Wrapper = styled.div<{ color: string; isOver: boolean; validMove: boolean }>`
-  width: 60px;
-  height: 60px;
+  width: 56px;
+  height: 56px;
   background-color: ${(props) => (props.validMove ? 'lightgreen' : props.color === 'white' ? 'bisque' : 'darkgray')};
   display: flex;
   align-items: center;
   justify-content: center;
-  border: ${(props) => (props.isOver ? '2px solid red' : 'none')}
+  border: ${(props) => (props.isOver ? '2px solid red' : '2px solid transparent')};
 }
 `
 
@@ -25,10 +25,8 @@ export const Square: FC<SquareProps> = ({ color, id, validMove, children, x, y }
   const { isOver, setNodeRef } = useDroppable({ id: id, data: { something: id } })
 
   return (
-    <div ref={setNodeRef}>
-      <Wrapper color={color} key={id} isOver={isOver} validMove={validMove}>
-        {children}
-      </Wrapper>
-    </div>
+    <Wrapper ref={setNodeRef} color={color} key={id} isOver={isOver} validMove={validMove}>
+      {children}
+    </Wrapper>
   )
 }
