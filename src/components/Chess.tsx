@@ -15,10 +15,10 @@ type Action =
   | { type: 'setActivePiece'; payload: { active: Active } }
   | { type: 'clearActivePiece' }
 
-type State = {
+export type State = {
   pieces: Array<Array<PieceProps | undefined>>
   graveyard: Array<PieceProps>
-  currentPlayer: 'black' | 'white'
+  currentPlayer: PieceColor
   movingPiece: PieceProps | null
   validMoves: boolean[][]
 }
@@ -44,10 +44,12 @@ const resetArray = () =>
     .fill(false)
     .map((x) => Array(8).fill(false))
 
+const { Black, White } = PieceColor
+
 const initialState: State = {
   pieces: setupBoard(),
   graveyard: [],
-  currentPlayer: 'white',
+  currentPlayer: White,
   movingPiece: null,
   validMoves: resetArray(),
 }
@@ -69,7 +71,7 @@ const reducer = (state: State, action: Action): State => {
     console.log(`Piece is at [${x},${y}]`)
 
     // choose which way to go
-    let isBlack = piece.color === PieceColor.Black
+    let isBlack = piece.color === Black
     const operator = isBlack ? plus : minus
 
     const inRange = (pos: number) => {
@@ -198,6 +200,15 @@ const reducer = (state: State, action: Action): State => {
       case PieceType.Rook:
         // Rook can walk in a straight line for an unlimited number of squares
         walkAllStraights(7)
+        // Rook can also castle
+
+        // am I in my original position?
+
+        // and is the King in his original position?
+
+        // is the King in check?
+
+        // can the king move two squares towards me?
 
         break
       case PieceType.Pawn: {
@@ -214,11 +225,19 @@ const reducer = (state: State, action: Action): State => {
     return validMoves
   }
 
+  /**
+   * Augment the state object by rotating the player
+   */
+  const stateWithNewPlayer: (state: State) => State = (state: State) => ({
+    ...state,
+    currentPlayer: state.currentPlayer === Black ? White : Black,
+  })
+
   switch (action.type) {
     case 'start': {
       let newBoard = setupBoard()
-      console.log('newbOard', newBoard)
-      return { ...state, pieces: newBoard }
+      console.log('newBoard', newBoard)
+      return { ...state, pieces: newBoard, currentPlayer: White }
     }
     case 'move': {
       const { active, over } = action.payload
@@ -253,11 +272,11 @@ const reducer = (state: State, action: Action): State => {
             let newPieces = state.pieces.slice()
             newPieces[destX][destY] = activePiece
             newPieces[x][y] = undefined
-            return {
+            return stateWithNewPlayer({
               ...state,
               pieces: newPieces,
               validMoves: resetArray(),
-            }
+            })
           } else {
             if (pieceInDestination.color !== activePiece.color) {
               activePiece.x = destX
@@ -269,12 +288,12 @@ const reducer = (state: State, action: Action): State => {
               newPieces[x][y] = undefined
 
               // add the old piece to the graveyard
-              return {
+              return stateWithNewPlayer({
                 ...state,
                 pieces: newPieces,
                 validMoves: resetArray(),
                 graveyard: [...state.graveyard, pieceInDestination],
-              }
+              })
             }
           }
         }
@@ -341,7 +360,7 @@ export const Chess = () => {
             <h1>Chess Game</h1>
           </div>
           <div className="p-mb-2">
-            <Board pieces={state.pieces} validMoves={state.validMoves} />
+            <Board {...state} />
           </div>
           <div className="p-mb-2">
             <Button onClick={() => dispatch({ type: 'start' })}>Reset</Button>
@@ -352,6 +371,9 @@ export const Chess = () => {
           <motion.div drag="x" dragConstraints={{ left: -100, right: 100 }}>
             I am in a div
           </motion.div>
+          <p>
+            <strong>Current Player:</strong> {state.currentPlayer}
+          </p>
           <p>
             <strong>Moving Piece:</strong> {state.movingPiece ? state.movingPiece?.id : 'None'}
           </p>

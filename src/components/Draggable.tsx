@@ -24,6 +24,7 @@ export const Draggable: FC<{ id: string }> = ({ id, children }) => {
       <div
         style={{
           position: 'absolute',
+          cursor: 'pointer',
         }}>
         <AnimatePresence>
           <motion.div

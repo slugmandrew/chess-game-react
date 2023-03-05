@@ -34,5 +34,5 @@ export const iconLookup = (type: PieceType): IconProp => {
 }
 
 export const Piece: FC<PieceProps> = ({ type, color }) => {
-  return <FontAwesomeIcon icon={iconLookup(type)} color={color} size={'3x'} style={{ cursor: 'pointer' }} />
+  return <FontAwesomeIcon icon={iconLookup(type)} color={color} size={'3x'} />
 }
