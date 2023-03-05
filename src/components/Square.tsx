@@ -11,8 +11,8 @@ export type SquareProps = {
 }
 
 const Wrapper = styled.div<{ color: string; isOver: boolean; validMove: boolean }>`
-  width: 56px;
-  height: 56px;
+  width: 50px;
+  height: 50px;
   background-color: ${(props) => (props.validMove ? 'lightgreen' : props.color === 'white' ? 'bisque' : 'darkgray')};
   display: flex;
   align-items: center;

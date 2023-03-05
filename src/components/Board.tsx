@@ -3,8 +3,8 @@ import styled from 'styled-components'
 import { Square } from './Square'
 import { Piece, PieceProps } from './Piece'
 import { Draggable } from './Draggable'
-import { State } from './Chess'
 import { Grid, SimpleGrid } from '@mantine/core'
+import { State } from '../Store'
 
 const BoardOuter = styled.div`
   display: block;
@@ -53,7 +53,7 @@ export const Board: FC<State> = ({ pieces, validMoves, currentPlayer }) => {
   }
 
   return (
-    <SimpleGrid style={{ width: 480, height: 480 }} spacing={0} cols={8}>
+    <SimpleGrid spacing={0} cols={8}>
       {squares}
     </SimpleGrid>
   )
